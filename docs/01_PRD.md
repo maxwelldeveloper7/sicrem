@@ -1,8 +1,5 @@
-# PRD — Sistema de Inscrição em Creche
-## Documento de Requisitos de Produto
-
-**Versão:** 2.0  
-**Licença:** GNU General Public License (GPL)  
+**Versão:** 3.0 (simplificada a partir da v2.0)
+**Licença:** GNU General Public License (GPL)
 **Última revisão:** 2026
 
 ---
@@ -11,7 +8,7 @@
 
 1. [Visão Geral do Produto](#1-visão-geral-do-produto)
 2. [Problema a Ser Resolvido](#2-problema-a-ser-resolvido)
-3. [Usuários do Sistema](#3-usuários-do-sistema)
+3. [Usuário do Sistema](#3-usuário-do-sistema)
 4. [Fluxo Principal do Sistema](#4-fluxo-principal-do-sistema)
 5. [Funcionalidades do Sistema](#5-funcionalidades-do-sistema)
 6. [Cadastro do Responsável](#6-cadastro-do-responsável)
@@ -20,10 +17,10 @@
 9. [Conferência da Inscrição](#9-conferência-da-inscrição)
 10. [Comprovante de Inscrição](#10-comprovante-de-inscrição)
 11. [Consulta de Inscrições](#11-consulta-de-inscrições)
-12. [Relatórios Administrativos](#12-relatórios-administrativos)
+12. [Relatórios](#12-relatórios)
 13. [Regras de Negócio Consolidadas](#13-regras-de-negócio-consolidadas)
 14. [Requisitos Não Funcionais](#14-requisitos-não-funcionais)
-15. [Auditoria e Registro de Operações](#15-auditoria-e-registro-de-operações)
+15. [Registro de Alterações (Histórico)](#15-registro-de-alterações-histórico)
 16. [Regras Operacionais](#16-regras-operacionais)
 17. [Decisões de Escopo](#17-decisões-de-escopo)
 
@@ -33,143 +30,73 @@
 
 ### 1.1 Nome do Produto
 
-**Sistema de Inscrição para Creche da Rede Municipal**
+**Sistema de Inscrição para Creche**
 
 ### 1.2 Propósito
 
-Disponibilizar um sistema digital para **registro, controle e gerenciamento das inscrições de crianças em creches da rede municipal**, permitindo:
+Disponibilizar uma aplicação web local, com banco de dados armazenado na própria máquina, para **registro e controle das inscrições de crianças em uma creche**, operada por um único funcionário, permitindo:
 
 - cadastro padronizado das inscrições
-- rastreabilidade administrativa das informações
-- geração de comprovantes de inscrição
-- consulta de inscrições realizadas por ano letivo
-- geração de relatórios para planejamento educacional
-- consolidação de dados para análise de demanda por vagas
+- geração de comprovante de inscrição
+- consulta de inscrições por ano letivo
+- geração de relatórios simples para apoio ao planejamento
 
-O sistema funciona como **ferramenta institucional de apoio à gestão educacional**, garantindo transparência, organização administrativa e integridade das informações registradas.
-
-> **Nota de escopo:** o sistema realiza o registro de pré-matrículas. Critérios de priorização e chamada de vagas são processos externos ao sistema, de responsabilidade da Secretaria Municipal de Educação. Essa delimitação é intencional e garante neutralidade jurídica do software.
+> **Nota de escopo:** o sistema realiza o registro de pré-matrículas. Critérios de priorização e chamada de vagas continuam fora do escopo do sistema, sendo decisões administrativas externas.
 
 ### 1.3 Licença
 
-O sistema é distribuído sob **GNU General Public License (GPL)**, garantindo que o código-fonte seja aberto, auditável e redistribuível conforme os termos da licença.
+O sistema é distribuído sob **GNU General Public License (GPL)**.
+
+### 1.4 Ambiente de Execução
+
+- aplicação **web**, acessada via navegador
+- executa **em uma única máquina**, sem necessidade de servidor remoto
+- banco de dados **local**, armazenado na mesma máquina da aplicação
+- não depende de conexão com a internet para funcionar
+- não há múltiplos usuários simultâneos nem múltiplas unidades escolares
 
 ---
 
 ## 2. Problema a Ser Resolvido
 
-O processo de inscrição pode apresentar:
+O processo de inscrição, quando feito manualmente ou em planilhas soltas, apresenta:
 
-- registros manuais ou dispersos entre unidades
 - risco de duplicidade de inscrições para a mesma criança
-- dificuldade de rastreamento e auditoria das informações
-- ausência de padronização de dados entre unidades
-- dificuldade de consolidar informações para planejamento de vagas
-- falta de visibilidade centralizada pela Secretaria Municipal
+- dificuldade de localizar inscrições antigas
+- ausência de comprovante padronizado para o responsável
+- dificuldade de consolidar números para planejamento de vagas
 
-O sistema proposto visa **centralizar, padronizar e registrar digitalmente o processo de inscrição**, garantindo maior confiabilidade, rastreabilidade e suporte à tomada de decisão administrativa.
-
----
-
-## 3. Usuários do Sistema
-
-O sistema possui quatro perfis distintos, com responsabilidades e permissões bem delimitadas.
-
-> **Nomenclatura:** o termo "secretário" designa dois papéis completamente diferentes neste sistema. O **Secretário de Educação** é o gestor da rede municipal. O **Secretário Escolar** é o funcionário administrativo de uma unidade escolar, com perfil operacional equivalente ao Diretor.
+O sistema centraliza esse registro em uma aplicação local simples, sem a complexidade de um sistema multiusuário em rede.
 
 ---
 
-### 3.1 Administrador
+## 3. Usuário do Sistema
 
-Responsável pela **configuração técnica do sistema** e cadastro inicial dos Secretários de Educação.
+O sistema possui **um único perfil de usuário**: o **Operador** — o funcionário responsável pelo atendimento e registro das inscrições.
 
-**Permissões:**
-- configurar parâmetros do sistema
-- cadastrar Secretários de Educação
-- definir períodos de inscrição por ano letivo
-- consultar todos os registros do sistema
-- gerar relatórios administrativos globais
-
-**Restrições:**
-- não pode registrar, editar ou excluir inscrições
-
----
-
-### 3.2 Secretário de Educação
-
-Responsável pela **gestão da estrutura da rede municipal de educação** e pela supervisão administrativa das inscrições em todas as unidades.
-
-**Permissões:**
-- cadastrar unidades escolares
-- cadastrar Diretores e vinculá-los às suas respectivas unidades
-- cadastrar Secretários Escolares e vinculá-los às suas respectivas unidades
-- **visualizar** inscrições e dados de **todas as unidades** da rede
-- gerar relatórios administrativos de todas as unidades
-- reemitir comprovantes de inscrição de qualquer unidade
-- exportar CSV oficial ao encerramento do período
-
-**Restrições:**
-- não pode registrar, editar ou excluir inscrições
-- não pode alterar dados de responsáveis ou crianças já registrados
-
----
-
-### 3.3 Diretor
-
-Responsável pelo **atendimento direto ao cidadão e registro das inscrições** na unidade à qual está vinculado.
-
-**Permissões:**
-- cadastrar e configurar turmas da própria unidade
-- registrar inscrições na própria unidade
+**Permissões (todas concentradas no Operador):**
+- cadastrar e configurar turmas
+- definir o período de inscrição do ano letivo
+- registrar inscrições
 - cadastrar responsáveis e crianças durante o processo de inscrição
-- editar registros de inscrições **durante o período oficial de inscrição**
-- consultar inscrições da própria unidade
-- reemitir comprovantes de inscrição da própria unidade
+- editar registros **durante o período oficial de inscrição**
+- consultar inscrições
+- reemitir comprovantes de inscrição
+- gerar relatórios
+- exportar CSV
 
 **Restrições:**
-- acesso restrito à unidade à qual está vinculado
-- não pode excluir inscrições
-- não pode editar inscrições após o encerramento do período oficial
+- não é possível excluir inscrições já registradas
+- não é possível editar inscrições após o encerramento do período oficial
 
----
-
-### 3.4 Secretário Escolar
-
-Funcionário administrativo da unidade escolar. Possui as **mesmas permissões operacionais do Diretor**, sendo um segundo operador da mesma unidade. É cadastrado pelo Secretário de Educação e vinculado a uma única unidade.
-
-**Permissões:** idênticas ao perfil Diretor — ver seção 3.3.
-
-**Restrições:** idênticas ao perfil Diretor — ver seção 3.3.
-
-> Cada unidade pode ter um Diretor e um Secretário Escolar, ambos com acesso operacional completo à própria unidade.
-
----
-
-### 3.5 Matriz de Permissões
-
-| Ação | Administrador | Secretário de Educação | Diretor | Secretário Escolar |
-|---|:---:|:---:|:---:|:---:|
-| Configurar o sistema | ✓ | — | — | — |
-| Cadastrar unidades escolares | — | ✓ | — | — |
-| Cadastrar Diretores | — | ✓ | — | — |
-| Cadastrar Secretários Escolares | — | ✓ | — | — |
-| Definir períodos de inscrição | ✓ | — | — | — |
-| Cadastrar e configurar turmas | — | — | ✓ | ✓ |
-| Registrar inscrições | — | — | ✓ | ✓ |
-| Editar inscrições (período aberto) | — | — | ✓ | ✓ |
-| Visualizar inscrições | Todas | Todas | Própria unidade | Própria unidade |
-| Reemitir comprovantes | — | Todas | Própria unidade | Própria unidade |
-| Gerar relatórios | ✓ | ✓ (todas) | ✓ (própria) | ✓ (própria) |
-| Exportar CSV oficial | ✓ | ✓ | — | — |
+> Não há hierarquia de perfis, múltiplas unidades ou controle de acesso por papel — o sistema foi simplificado para um único operador em uma única máquina.
 
 ---
 
 ## 4. Fluxo Principal do Sistema
 
-O fluxo operacional principal é organizado priorizando simplicidade e clareza para o operador:
-
-1. autenticar usuário
-2. gerenciar estrutura escolar (quando aplicável)
+1. abrir a aplicação (login simples opcional, ver seção 5.1)
+2. cadastrar/configurar turmas (uma vez por ano letivo)
 3. iniciar inscrição informando o CPF da criança
 4. cadastrar responsável
 5. cadastrar criança
@@ -179,84 +106,34 @@ O fluxo operacional principal é organizado priorizando simplicidade e clareza p
 9. registrar inscrição
 10. gerar e entregar comprovante
 11. consultar inscrições
-12. gerar relatórios administrativos
+12. gerar relatórios
 
 ---
 
 ## 5. Funcionalidades do Sistema
 
-Aqui está a seção 5.1 revisada:
+### 5.1 Autenticação (Simplificada)
 
----
-
-### 5.1 Autenticação
-
-O sistema permite login apenas de usuários previamente cadastrados e autorizados.
+Como o sistema roda em uma única máquina operada por um único funcionário, a autenticação serve apenas como proteção básica de acesso local — não há necessidade de gestão de perfis ou hierarquia de aprovação.
 
 **Campos:**
-- usuário (CPF ou e-mail institucional)
-- senha
+- senha local de acesso
 
 **Comportamento:**
-- validar credenciais contra a base de usuários
-- identificar perfil do usuário autenticado
-- aplicar controle de acesso conforme o perfil
-- redirecionar ao painel correspondente ao perfil
-- registrar tentativas de login (com sucesso e falha) no log de auditoria, incluindo IP de origem, identificador do dispositivo e timestamp
-- bloquear conta após número configurável de tentativas inválidas consecutivas
+- solicitar senha ao abrir a aplicação
+- permitir redefinição de senha diretamente na máquina (sem envio de e-mail ou fluxo de recuperação institucional)
+- bloquear acesso após número configurável de tentativas inválidas consecutivas
 
-**Recuperação de acesso:**
-
-O fluxo de redefinição de senha é autônomo e iniciado pelo próprio usuário, sem dependência de intervenção manual de superiores hierárquicos.
-
-- o usuário solicita a redefinição informando seu CPF ou e-mail institucional cadastrado
-- o sistema envia um link de redefinição para o e-mail institucional vinculado ao cadastro do usuário
-- o link tem validade de 1 hora — após uso ou expiração, é automaticamente invalidado
-- após redefinição bem-sucedida, sessões ativas anteriores são encerradas
-- o evento completo de redefinição é registrado no log de auditoria com usuário, IP de origem, identificador do dispositivo e timestamp
-
-**Restrições do e-mail institucional:**
-- o e-mail institucional é cadastrado pelo nível superior hierárquico no momento da criação do usuário
-- o usuário não pode alterar o próprio e-mail de recuperação sem autorização do nível superior
-- alterações no e-mail institucional são registradas no log de auditoria
-
-**Rastreabilidade e responsabilização:**
-
-Todas as ações realizadas no sistema são registradas no log de auditoria com identificação do usuário autenticado, perfil, operação realizada, IP de origem, identificador do dispositivo e timestamp. Esse registro é imutável e serve de base para apuração administrativa ou jurídica em caso de uso indevido do sistema.
-
-**Hierarquia de suporte para casos excepcionais:**
-- Diretor ou Secretário Escolar sem acesso ao e-mail institucional cadastrado: aciona o Secretário de Educação para atualização do e-mail e reenvio do link
-- Secretário de Educação: aciona o Administrador
-- todos os atendimentos excepcionais são registrados no log de auditoria
+> **Assunção:** como não há múltiplos usuários nem acesso remoto, não é necessário log de IP, dispositivo ou hierarquia de suporte para recuperação de senha. Se preferir, a autenticação pode ser removida completamente, já que o controle de acesso físico à máquina já limita o uso.
 
 ---
 
-### 5.2 Gerenciamento da Estrutura Escolar
+### 5.2 Cadastro de Turmas
 
-#### Cadastro de Unidades Escolares (Secretário de Educação)
-
-**Campos:**
-- nome da unidade
-- endereço completo
-- telefone
-- diretor(es) vinculado(s)
-- secretário(s) vinculado(s)
-- status (ativa / inativa)
-
-#### Cadastro de Turmas (Diretor)
-
-Cada unidade deve ter turmas cadastradas antes do início do período de inscrição.
-
-**Exemplos de turmas:**
-- Berçário I
-- Berçário II
-- Berçário III
-- 1º Período
-- 2º Período
+Não há mais cadastro de "unidades escolares" — existe apenas a creche onde o sistema é operado.
 
 **Campos da turma:**
-- unidade escolar
-- nome da turma
+- nome da turma (ex.: Berçário I, Berçário II, 1º Período, 2º Período)
 - turno (manhã, tarde ou integral)
 - faixa etária mínima (em meses ou anos completos em 31/03)
 - faixa etária máxima (em meses ou anos completos em 31/03)
@@ -267,7 +144,7 @@ Cada unidade deve ter turmas cadastradas antes do início do período de inscri�
 
 ### 5.3 Configuração do Período de Inscrição
 
-O Administrador define os períodos oficiais de inscrição.
+O próprio Operador define o período oficial de inscrição.
 
 **Campos:**
 - ano letivo
@@ -277,9 +154,8 @@ O Administrador define os períodos oficiais de inscrição.
 
 **Regras:**
 - o período de inscrição ocorre uma vez por ano letivo
-- a duração média é de 5 a 6 semanas
 - fora do período, o sistema bloqueia o registro de novas inscrições
-- após encerramento, inscrições existentes tornam-se imutáveis no sistema
+- após encerramento, inscrições existentes tornam-se imutáveis
 
 ---
 
@@ -287,27 +163,24 @@ O Administrador define os períodos oficiais de inscrição.
 
 A elegibilidade da criança considera o **corte etário de 31 de março do ano letivo da inscrição**.
 
-**Regra:** a idade considerada é a que a criança terá em 31 de março do ano letivo.
-
 **Comportamento do sistema:**
 - calcular automaticamente a idade na data de corte com base na data de nascimento
-- determinar a faixa etária elegível
 - sugerir a turma compatível com a faixa etária calculada
-- bloquear seleção de turma incompatível com a idade calculada, exibindo mensagem explicativa
+- bloquear seleção de turma incompatível, exibindo mensagem explicativa
 
 ---
 
 ### 5.5 Início da Inscrição
 
-O Diretor inicia uma inscrição informando o **CPF da criança**.
+O Operador inicia uma inscrição informando o **CPF da criança**.
 
 **Comportamento do sistema:**
 
 1. verificar se já existe inscrição ativa associada ao CPF no ano letivo vigente
-2. **se existir:** bloquear nova inscrição e exibir data, horário e unidade da inscrição já registrada
+2. **se existir:** bloquear nova inscrição e exibir data e horário da inscrição já registrada
 3. **se não existir:** prosseguir para o cadastro do responsável e da criança, pré-preenchendo o CPF no formulário da criança
 
-> **Nota:** toda criança nascida no Brasil recebe CPF no momento do registro da certidão de nascimento. Para casos excepcionais (crianças nascidas no exterior ainda sem CPF regularizado), o responsável deve regularizar o CPF previamente em uma agência dos Correios. O CPF é campo obrigatório para inscrição.
+> **Nota:** o CPF é campo obrigatório para inscrição, pois toda criança nascida no Brasil recebe CPF no registro da certidão de nascimento.
 
 ---
 
@@ -327,14 +200,12 @@ O Diretor inicia uma inscrição informando o **CPF da criança**.
 - município e UF
 - CEP
 - ponto de referência
-- comprovante de endereço (registro lógico — o documento físico permanece arquivado na unidade)
 
 ### 6.3 Situação Socioeconômica
 
-Estas informações são coletadas para fins de planejamento e análise de políticas públicas. A definição dos critérios de priorização de vagas é responsabilidade da Secretaria Municipal, fora do escopo deste sistema.
+Coletadas para fins de planejamento interno da creche.
 
 - mãe com vínculo empregatício
-- comprovante de endereço do trabalho
 - demonstrativo de crédito ou benefício
 - LOAS / BPC / seguro-desemprego
 - trabalhador(a) autônomo(a)
@@ -357,13 +228,12 @@ Estas informações são coletadas para fins de planejamento e análise de polí
 
 ### 7.2 Solicitação de Vaga
 
-- unidade escolar pretendida (o responsável pode escolher livremente qualquer unidade da rede)
-- turma pretendida (sugerida automaticamente pelo sistema com base no corte etário; seleção de turma incompatível é bloqueada)
+- turma pretendida (sugerida automaticamente pelo sistema com base no corte etário; seleção incompatível é bloqueada)
 
 ### 7.3 Situação Documental
 
 - certidão em que não conste pai ou mãe
-- irmão(ã) matriculado(a) em unidade escolar da rede municipal
+- irmão(ã) já matriculado(a) na creche
 
 ### 7.4 Encaminhamentos Institucionais
 
@@ -380,8 +250,6 @@ Estas informações são coletadas para fins de planejamento e análise de polí
 - laudo de deficiência ou neoplasia
 - laudo de intolerância alimentar
 - laudo de neurodivergência
-
-> Essas informações auxiliam no planejamento de políticas de inclusão e priorização social pela Secretaria Municipal.
 
 ---
 
@@ -403,21 +271,19 @@ Todos os campos permanecem editáveis.
 
 ## 9. Conferência da Inscrição
 
-Antes de salvar, o sistema exibe um **resumo completo das informações registradas**.
+Antes de salvar, o sistema exibe um **resumo completo das informações registradas**:
 
-**Informações exibidas:**
 - dados do responsável
 - dados da criança
 - situação socioeconômica informada
 - documentos informados
 - encaminhamentos institucionais informados
 - dados sociais e de saúde informados
-- unidade pretendida
 - turma pretendida
 
-> Campos lógicos (checkboxes, flags) aparecem no resumo **apenas quando marcados como verdadeiros**, evitando poluição visual.
+> Campos lógicos (checkboxes, flags) aparecem no resumo **apenas quando marcados como verdadeiros**.
 
-O Diretor pode voltar a qualquer seção para corrigir informações antes de confirmar o registro.
+O Operador pode voltar a qualquer seção para corrigir informações antes de confirmar o registro.
 
 ---
 
@@ -430,35 +296,25 @@ Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 **Identificação da inscrição:**
 - número da inscrição
 - data e hora do registro
-- unidade onde foi realizada a inscrição
 - ano letivo
 
 **Dados da criança:**
-- nome completo
-- CPF
-- data de nascimento
-- nome do pai
-- nome da mãe
+- nome completo, CPF, data de nascimento, nome do pai, nome da mãe
 
 **Dados do responsável:**
-- nome completo
-- CPF
-- telefone
-- endereço
+- nome completo, CPF, telefone, endereço
 
 **Solicitação:**
-- unidade escolar pretendida
 - turma pretendida
 
 ### 10.2 Formato
 
-O comprovante pode ser:
-- impresso diretamente na unidade
+- impresso diretamente na máquina local
 - gerado em PDF para download ou reimpressão
 
 ### 10.3 Segurança do PDF
 
-O arquivo PDF é gerado com proteção de abertura por senha baseada no CPF da criança (apenas dígitos, sem formatação). Essa proteção serve para **controle de distribuição e rastreabilidade**, não como mecanismo de segurança de dados sensíveis — os dados pessoais são protegidos pelo controle de acesso ao sistema, conforme os requisitos de segurança da seção 14.
+O arquivo PDF é gerado com proteção de abertura por senha baseada no CPF da criança (apenas dígitos). Serve para controle de distribuição — os dados ficam armazenados localmente no banco de dados da máquina.
 
 ---
 
@@ -470,48 +326,35 @@ O arquivo PDF é gerado com proteção de abertura por senha baseada no CPF da c
 - CPF da criança
 - número da inscrição
 - **ano letivo** (filtro obrigatório, padrão: ano letivo vigente)
-- unidade escolar (disponível apenas para Secretário Municipal e Administrador)
 
-### 11.2 Permissões de Acesso
-
-- **Diretor / Secretário Escolar:** consulta apenas inscrições da própria unidade
-- **Secretário de Educação:** consulta inscrições de todas as unidades
-- **Administrador:** consulta todas as inscrições
-
-### 11.3 Funcionalidades
+### 11.2 Funcionalidades
 
 - visualizar dados completos da inscrição selecionada
 - reemitir comprovante de inscrição
 
 ---
 
-## 12. Relatórios Administrativos
+## 12. Relatórios
 
 ### 12.1 Tipos de Relatórios
 
 **Lista geral de inscritos:**
-- número da inscrição, nome da criança, unidade pretendida, turma pretendida, data da inscrição
-
-**Inscrições por unidade escolar:**
-análise de demanda por escola, útil para planejamento de abertura de turmas
+- número da inscrição, nome da criança, turma pretendida, data da inscrição
 
 **Inscrições por turma pretendida ou faixa etária:**
 subsidia o planejamento da oferta de vagas
 
 **Relatórios por critérios sociais:**
-- renda per capita
-- situação de vulnerabilidade social
-- benefícios sociais declarados
-- encaminhamentos institucionais registrados
+- renda per capita, situação de vulnerabilidade social, benefícios sociais declarados, encaminhamentos institucionais registrados
 
 ### 12.2 Filtros
 
-Todos os relatórios devem permitir filtragem por **ano letivo** e, quando aplicável, por unidade escolar.
+Todos os relatórios devem permitir filtragem por **ano letivo**.
 
 ### 12.3 Exportação
 
 - todos os relatórios podem ser exportados em **CSV**
-- após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros do período, para fins de planejamento e arquivo institucional
+- após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros do período
 
 ---
 
@@ -523,12 +366,10 @@ Todos os relatórios devem permitir filtragem por **ano letivo** e, quando aplic
 4. a idade da criança é calculada com base no corte etário de **31 de março** do ano letivo
 5. o sistema sugere a turma compatível e bloqueia seleções incompatíveis com a faixa etária
 6. campos lógicos são exibidos no resumo apenas quando verdadeiros
-7. Diretores e Secretários Escolares acessam apenas dados da própria unidade
-8. o Secretário de Educação visualiza dados de todas as unidades, sem permissão de edição
-9. nenhuma inscrição pode ser excluída
-10. após o encerramento do período de inscrição, nenhuma inscrição pode ser editada no sistema
-11. comprovantes devem ser gerados em PDF com proteção por senha
-12. registros ficam associados ao ano letivo e devem ser consultáveis por filtro de ano
+7. nenhuma inscrição pode ser excluída
+8. após o encerramento do período de inscrição, nenhuma inscrição pode ser editada no sistema
+9. comprovantes devem ser gerados em PDF com proteção por senha
+10. registros ficam associados ao ano letivo e devem ser consultáveis por filtro de ano
 
 ---
 
@@ -536,22 +377,19 @@ Todos os relatórios devem permitir filtragem por **ano letivo** e, quando aplic
 
 ### Segurança
 
-- autenticação obrigatória para todas as funcionalidades
-- controle de acesso por perfil (RBAC)
-- bloqueio de conta após tentativas inválidas consecutivas configuráveis
-- criptografia de comprovantes em PDF
-- transmissão de dados por HTTPS
-- proteção de dados pessoais conforme LGPD
+- senha local de acesso à aplicação (opcional, ver seção 5.1)
+- proteção por senha dos comprovantes em PDF
+- não há necessidade de HTTPS, já que a aplicação roda localmente sem tráfego de rede externa
 
-### Disponibilidade e Conectividade
+### Disponibilidade
 
-- o sistema opera em modo **online**, com acesso via rede local ou internet
-- em caso de indisponibilidade, o sistema deve exibir mensagem clara ao operador informando a falha de conexão
-- formulários em andamento não devem ser perdidos em caso de queda de conexão momentânea — o sistema deve alertar o operador antes de qualquer perda de dados
+- o sistema **não depende de internet** — funciona inteiramente offline, com banco de dados local
+- não há requisito de disponibilidade de rede, já que não existe servidor remoto
+- formulários em andamento não devem ser perdidos em caso de fechamento acidental da aba/navegador — o sistema deve alertar o operador antes de qualquer perda de dados
 
 ### Usabilidade
 
-- formulários simples e objetivos, adequados a operadores sem perfil técnico avançado
+- formulários simples e objetivos
 - preenchimento automático sempre que possível (CPF pré-preenchido, turma sugerida, dados do responsável reutilizados para irmãos)
 - mensagens de erro claras e orientadas à ação
 
@@ -564,109 +402,80 @@ Todos os relatórios devem permitir filtragem por **ano letivo** e, quando aplic
 
 ### Proteção de Dados (LGPD)
 
-- controle de acesso segmentado por perfil e unidade
-- registro de todos os acessos e operações (log de auditoria)
-- armazenamento seguro de informações sensíveis (dados de saúde, situação social)
-- rastreabilidade de todas as alterações (campo, valor anterior, valor novo)
+- armazenamento local seguro de informações sensíveis (dados de saúde, situação social)
+- rastreabilidade de alterações (campo, valor anterior, valor novo) — ver seção 15
 
 ### Backup e Recuperação
 
-- rotina de backup automático dos dados com periodicidade mínima diária
-- procedimento documentado de recuperação em caso de falha
-- ambiente de homologação disponível para treinamento de operadores antes da implantação em produção
+- rotina de backup local do banco de dados (ex.: cópia periódica do arquivo de banco para outro local/mídia), com periodicidade mínima diária
+- procedimento simples documentado de restauração do backup em caso de falha da máquina
 
 ---
 
-## 15. Auditoria e Registro de Operações
+## 15. Registro de Alterações (Histórico)
 
-Todas as operações do sistema geram registros imutáveis de auditoria.
+Como há apenas um operador, não é necessário um sistema completo de auditoria multiusuário (IP, dispositivo, perfil). Mantém-se um **histórico simplificado de alterações**, útil para corrigir erros de digitação e rastrear o que foi modificado.
 
 ### 15.1 Operações Registradas
 
-- **C** — criação de registros (inscrições, usuários, turmas, unidades)
-- **R** — leitura de dados sensíveis (visualização de inscrições, reemissão de comprovantes)
-- **U** — atualização de registros
-
-Não haverá operação de exclusão de inscrições.
+- criação de inscrições, turmas
+- edição de registros (durante o período de inscrição)
 
 ### 15.2 Informações Registradas por Evento
 
-Cada evento de auditoria deve conter:
-
-- identificador do usuário autenticado
-- perfil do usuário
-- operação realizada (C / R / U)
-- entidade afetada (inscrição, turma, usuário, etc.)
+- data e hora
+- entidade afetada (inscrição, turma)
 - identificador do registro afetado
-- data e hora (com fuso horário)
-- unidade escolar vinculada ao usuário
-- endereço IP ou identificador do dispositivo
+- campo alterado, valor anterior, valor novo (nas edições)
 
-### 15.3 Registro de Alterações (diff)
+### 15.3 Finalidade
 
-Para operações de edição (U), registrar adicionalmente:
-
-- campo alterado
-- valor anterior
-- valor novo
-
-### 15.4 Finalidade
-
-Os registros de auditoria garantem:
-
-- transparência administrativa
-- rastreamento de responsabilidades
-- suporte a processos administrativos ou jurídicos
-- conformidade com a LGPD
-
-Os registros de auditoria são **imutáveis e protegidos contra alteração manual**, inclusive por administradores do sistema.
+- permitir corrigir erros de digitação com rastreabilidade
+- manter histórico consultável por ano letivo
 
 ---
 
 ## 16. Regras Operacionais
 
-- a rede possui **14 unidades escolares**
+- a creche possui **uma única unidade** (a própria máquina/local de atendimento)
 - o volume anual de inscrições costuma ficar **abaixo de 400 crianças**
-- o atendimento é **presencial nas unidades escolares**
-- o atendimento ocorre por **ordem de chegada com distribuição de senha física** (gestão da fila é feita fora do sistema)
-- o responsável pode escolher livremente qualquer unidade da rede como unidade pretendida
-- o sistema registra **pré-matrículas**, utilizadas para organização da demanda — não são matrículas definitivas
-- algumas documentações são apenas conferidas na unidade, podendo permanecer arquivadas fisicamente
-- o cadastro pode ser realizado por responsável legal, familiar ou cuidador, mediante assinatura de **termo físico** na unidade
+- o atendimento é **presencial**, por ordem de chegada, com distribuição de senha física (gestão da fila é feita fora do sistema)
+- o sistema registra **pré-matrículas**, não são matrículas definitivas
+- algumas documentações são apenas conferidas presencialmente, podendo permanecer arquivadas fisicamente
+- o cadastro pode ser realizado por responsável legal, familiar ou cuidador, mediante assinatura de **termo físico**
 
 ### Persistência de Registros
 
 - nenhuma pré-matrícula poderá ser excluída do sistema
-- todos os registros permanecem armazenados para auditoria e análise histórica
+- todos os registros permanecem armazenados no banco de dados local para consulta e análise histórica
 - registros são associados ao ano letivo e recuperáveis por filtro
 
 ### Bloqueio de Alterações
 
 Após o encerramento do período oficial de inscrição:
-
 - nenhuma inscrição poderá ser editada no sistema
 - nenhuma informação de responsável ou criança poderá ser alterada
 
-Correções posteriores ao encerramento do período ocorrem por **procedimento administrativo externo ao sistema**, sob responsabilidade da Secretaria de Educação.
+Correções posteriores ao encerramento ocorrem por **procedimento administrativo externo ao sistema**.
 
 ### Exportação Oficial
 
-Após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros realizados no período, para uso pela Secretaria de Educação no planejamento de vagas.
+Após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros do período.
 
 ---
 
 ## 17. Decisões de Escopo
 
-Esta seção documenta decisões explícitas de escopo tomadas durante a especificação do produto, com o objetivo de preservar a intenção original do sistema e blindar futuras solicitações de expansão indevida de funcionalidades.
-
 | Decisão | Justificativa |
 |---|---|
-| Critérios de priorização de vagas estão **fora do escopo** | Evita risco jurídico. A definição de critérios é responsabilidade da Secretaria Municipal. O sistema coleta dados neutros. |
-| Convocação e chamada de vagas estão **fora do escopo** | O sistema encerra seu papel no registro da pré-matrícula. O processo de oferta de vagas é conduzido externamente. |
-| Gestão de fila de atendimento presencial está **fora do escopo** | A distribuição de senhas é feita fisicamente nas unidades. O sistema não gerencia filas. |
-| O sistema opera exclusivamente **online** | Garante visibilidade em tempo real pela Secretaria Municipal. Risco de indisponibilidade pontual por falha de conexão é aceito e mitigado por mensagens de erro claras ao operador. |
-| CPF é campo **obrigatório** para inscrição | Toda criança nascida no Brasil recebe CPF na certidão de nascimento. Casos excepcionais (nascimento no exterior) devem ser regularizados previamente nos Correios. |
+| Sistema **multiusuário e multiperfil removido** | Apenas um operador utiliza o sistema, em uma única máquina — não há necessidade de hierarquia de perfis (Administrador, Secretário de Educação, Diretor, Secretário Escolar). |
+| Múltiplas **unidades escolares removidas** | O sistema atende a uma única creche, na própria máquina onde roda. |
+| Sistema passa a operar **localmente, offline** | Elimina a dependência de servidor remoto, HTTPS e conectividade constante — o banco de dados fica na própria máquina. |
+| Auditoria completa (IP, dispositivo, perfil) **simplificada** para histórico básico de alterações | Sem múltiplos usuários ou acessos remotos, o rastreamento de IP/dispositivo perde utilidade; mantém-se apenas o registro de campo/valor anterior/valor novo. |
+| Critérios de priorização de vagas continuam **fora do escopo** | Decisão administrativa, não muda com a simplificação técnica. |
+| Convocação e chamada de vagas continuam **fora do escopo** | O sistema encerra seu papel no registro da pré-matrícula. |
+| CPF continua **obrigatório** para inscrição | Toda criança nascida no Brasil recebe CPF na certidão de nascimento. |
 
 ---
 
-*Documento gerado a partir da versão 1.0, revisado com base em análise de requisitos e esclarecimentos dos stakeholders.*
+*Documento simplificado a partir da versão 2.0, adaptado para operação por um único funcionário em uma aplicação web local com banco de dados na própria máquina.*
