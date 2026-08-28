@@ -38,7 +38,6 @@ Disponibilizar uma aplicação web local, com banco de dados armazenado na próp
 
 - cadastro padronizado das inscrições
 - geração de comprovante de inscrição
-- consulta de inscrições por ano letivo
 - geração de relatórios simples para apoio ao planejamento
 
 > **Nota de escopo:** o sistema realiza o registro de pré-matrículas. Critérios de priorização e chamada de vagas continuam fora do escopo do sistema, sendo decisões administrativas externas.
@@ -52,9 +51,6 @@ O sistema é distribuído sob **GNU General Public License (GPL)**.
 - aplicação **web**, acessada via navegador
 - executa **em uma única máquina**, sem necessidade de servidor remoto
 - banco de dados **local**, armazenado na mesma máquina da aplicação
-- não depende de conexão com a internet para funcionar
-- não há múltiplos usuários simultâneos nem múltiplas unidades escolares
-
 ---
 
 ## 2. Problema a Ser Resolvido
@@ -75,11 +71,9 @@ O sistema centraliza esse registro em uma aplicação local simples, sem a compl
 O sistema possui **um único perfil de usuário**: o **Operador** — o funcionário responsável pelo atendimento e registro das inscrições.
 
 **Permissões (todas concentradas no Operador):**
-- cadastrar e configurar turmas
-- definir o período de inscrição do ano letivo
 - registrar inscrições
 - cadastrar responsáveis e crianças durante o processo de inscrição
-- editar registros **durante o período oficial de inscrição**
+- editar registros 
 - consultar inscrições
 - reemitir comprovantes de inscrição
 - gerar relatórios
@@ -87,16 +81,12 @@ O sistema possui **um único perfil de usuário**: o **Operador** — o funcion�
 
 **Restrições:**
 - não é possível excluir inscrições já registradas
-- não é possível editar inscrições após o encerramento do período oficial
-
-> Não há hierarquia de perfis, múltiplas unidades ou controle de acesso por papel — o sistema foi simplificado para um único operador em uma única máquina.
-
 ---
 
 ## 4. Fluxo Principal do Sistema
 
 1. abrir a aplicação (login simples opcional, ver seção 5.1)
-2. cadastrar/configurar turmas (uma vez por ano letivo)
+2. Cadastrar unidades escolares e turmas
 3. iniciar inscrição informando o CPF da criança
 4. cadastrar responsável
 5. cadastrar criança
@@ -121,16 +111,16 @@ Como o sistema roda em uma única máquina operada por um único funcionário, a
 
 **Comportamento:**
 - solicitar senha ao abrir a aplicação
-- permitir redefinição de senha diretamente na máquina (sem envio de e-mail ou fluxo de recuperação institucional)
+- Redefinição de senha deve ser solicitada ao suporte técinico
 - bloquear acesso após número configurável de tentativas inválidas consecutivas
-
-> **Assunção:** como não há múltiplos usuários nem acesso remoto, não é necessário log de IP, dispositivo ou hierarquia de suporte para recuperação de senha. Se preferir, a autenticação pode ser removida completamente, já que o controle de acesso físico à máquina já limita o uso.
-
 ---
 
-### 5.2 Cadastro de Turmas
+### 5.2 Cadastro de Unidades Escolares
+**Campos da Unidade:**
+- nome da unidade
+- endereço completo
 
-Não há mais cadastro de "unidades escolares" — existe apenas a creche onde o sistema é operado.
+### 5.3 Cadastro de Turmas
 
 **Campos da turma:**
 - nome da turma (ex.: Berçário I, Berçário II, 1º Período, 2º Período)
@@ -139,23 +129,6 @@ Não há mais cadastro de "unidades escolares" — existe apenas a creche onde o
 - faixa etária máxima (em meses ou anos completos em 31/03)
 - número de vagas disponíveis
 - ano letivo
-
----
-
-### 5.3 Configuração do Período de Inscrição
-
-O próprio Operador define o período oficial de inscrição.
-
-**Campos:**
-- ano letivo
-- data de início
-- data de encerramento
-- status (aberto / encerrado)
-
-**Regras:**
-- o período de inscrição ocorre uma vez por ano letivo
-- fora do período, o sistema bloqueia o registro de novas inscrições
-- após encerramento, inscrições existentes tornam-se imutáveis
 
 ---
 
@@ -176,7 +149,7 @@ O Operador inicia uma inscrição informando o **CPF da criança**.
 
 **Comportamento do sistema:**
 
-1. verificar se já existe inscrição ativa associada ao CPF no ano letivo vigente
+1. verificar se já existe inscrição ativa associada ao CPF
 2. **se existir:** bloquear nova inscrição e exibir data e horário da inscrição já registrada
 3. **se não existir:** prosseguir para o cadastro do responsável e da criança, pré-preenchendo o CPF no formulário da criança
 
@@ -227,8 +200,8 @@ Coletadas para fins de planejamento interno da creche.
 - nome da mãe
 
 ### 7.2 Solicitação de Vaga
-
-- turma pretendida (sugerida automaticamente pelo sistema com base no corte etário; seleção incompatível é bloqueada)
+- unidade escolar pretendida (o responsável pode escolher livremente qualquer unidade da rede)
+- turma pretendida (sugerida automaticamente pelo sistema com base na unidade selecionada e no corte etário; seleção incompatível é bloqueada)
 
 ### 7.3 Situação Documental
 
@@ -325,7 +298,6 @@ O arquivo PDF é gerado com proteção de abertura por senha baseada no CPF da c
 - nome da criança
 - CPF da criança
 - número da inscrição
-- **ano letivo** (filtro obrigatório, padrão: ano letivo vigente)
 
 ### 11.2 Funcionalidades
 
@@ -339,7 +311,7 @@ O arquivo PDF é gerado com proteção de abertura por senha baseada no CPF da c
 ### 12.1 Tipos de Relatórios
 
 **Lista geral de inscritos:**
-- número da inscrição, nome da criança, turma pretendida, data da inscrição
+- número da inscrição, nome da criança,unidade, turma pretendida, data da inscrição
 
 **Inscrições por turma pretendida ou faixa etária:**
 subsidia o planejamento da oferta de vagas
@@ -348,13 +320,12 @@ subsidia o planejamento da oferta de vagas
 - renda per capita, situação de vulnerabilidade social, benefícios sociais declarados, encaminhamentos institucionais registrados
 
 ### 12.2 Filtros
-
-Todos os relatórios devem permitir filtragem por **ano letivo**.
+Todos os relatórios devem permitir filtragem por **unidade, faixa etária**.
 
 ### 12.3 Exportação
 
 - todos os relatórios podem ser exportados em **CSV**
-- após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros do período
+- o sistema disponibiliza a geração do **arquivo CSV** contendo todos os registros do período
 
 ---
 
@@ -367,9 +338,7 @@ Todos os relatórios devem permitir filtragem por **ano letivo**.
 5. o sistema sugere a turma compatível e bloqueia seleções incompatíveis com a faixa etária
 6. campos lógicos são exibidos no resumo apenas quando verdadeiros
 7. nenhuma inscrição pode ser excluída
-8. após o encerramento do período de inscrição, nenhuma inscrição pode ser editada no sistema
-9. comprovantes devem ser gerados em PDF com proteção por senha
-10. registros ficam associados ao ano letivo e devem ser consultáveis por filtro de ano
+8. comprovantes devem ser gerados em PDF com proteção por senha
 
 ---
 
@@ -385,7 +354,6 @@ Todos os relatórios devem permitir filtragem por **ano letivo**.
 
 - o sistema **não depende de internet** — funciona inteiramente offline, com banco de dados local
 - não há requisito de disponibilidade de rede, já que não existe servidor remoto
-- formulários em andamento não devem ser perdidos em caso de fechamento acidental da aba/navegador — o sistema deve alertar o operador antes de qualquer perda de dados
 
 ### Usabilidade
 
@@ -414,7 +382,7 @@ Todos os relatórios devem permitir filtragem por **ano letivo**.
 
 ## 15. Registro de Alterações (Histórico)
 
-Como há apenas um operador, não é necessário um sistema completo de auditoria multiusuário (IP, dispositivo, perfil). Mantém-se um **histórico simplificado de alterações**, útil para corrigir erros de digitação e rastrear o que foi modificado.
+Mantém-se um **histórico simplificado de alterações**, útil para corrigir erros de digitação e rastrear o que foi modificado.
 
 ### 15.1 Operações Registradas
 
@@ -437,7 +405,7 @@ Como há apenas um operador, não é necessário um sistema completo de auditori
 
 ## 16. Regras Operacionais
 
-- a creche possui **uma única unidade** (a própria máquina/local de atendimento)
+- há várias creches **e o atendimento é realizado na secretaria de educação** (a própria máquina/local de atendimento)
 - o volume anual de inscrições costuma ficar **abaixo de 400 crianças**
 - o atendimento é **presencial**, por ordem de chegada, com distribuição de senha física (gestão da fila é feita fora do sistema)
 - o sistema registra **pré-matrículas**, não são matrículas definitivas
@@ -448,34 +416,3 @@ Como há apenas um operador, não é necessário um sistema completo de auditori
 
 - nenhuma pré-matrícula poderá ser excluída do sistema
 - todos os registros permanecem armazenados no banco de dados local para consulta e análise histórica
-- registros são associados ao ano letivo e recuperáveis por filtro
-
-### Bloqueio de Alterações
-
-Após o encerramento do período oficial de inscrição:
-- nenhuma inscrição poderá ser editada no sistema
-- nenhuma informação de responsável ou criança poderá ser alterada
-
-Correções posteriores ao encerramento ocorrem por **procedimento administrativo externo ao sistema**.
-
-### Exportação Oficial
-
-Após o encerramento do período de inscrição, o sistema disponibiliza a geração do **arquivo CSV oficial** contendo todos os registros do período.
-
----
-
-## 17. Decisões de Escopo
-
-| Decisão | Justificativa |
-|---|---|
-| Sistema **multiusuário e multiperfil removido** | Apenas um operador utiliza o sistema, em uma única máquina — não há necessidade de hierarquia de perfis (Administrador, Secretário de Educação, Diretor, Secretário Escolar). |
-| Múltiplas **unidades escolares removidas** | O sistema atende a uma única creche, na própria máquina onde roda. |
-| Sistema passa a operar **localmente, offline** | Elimina a dependência de servidor remoto, HTTPS e conectividade constante — o banco de dados fica na própria máquina. |
-| Auditoria completa (IP, dispositivo, perfil) **simplificada** para histórico básico de alterações | Sem múltiplos usuários ou acessos remotos, o rastreamento de IP/dispositivo perde utilidade; mantém-se apenas o registro de campo/valor anterior/valor novo. |
-| Critérios de priorização de vagas continuam **fora do escopo** | Decisão administrativa, não muda com a simplificação técnica. |
-| Convocação e chamada de vagas continuam **fora do escopo** | O sistema encerra seu papel no registro da pré-matrícula. |
-| CPF continua **obrigatório** para inscrição | Toda criança nascida no Brasil recebe CPF na certidão de nascimento. |
-
----
-
-*Documento simplificado a partir da versão 2.0, adaptado para operação por um único funcionário em uma aplicação web local com banco de dados na própria máquina.*
