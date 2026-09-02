@@ -1,9 +1,9 @@
 # PRD — Sistema de Inscrição em Creches (Censo Anual de Demanda)
 ## Documento de Requisitos de Produto
 
-**Versão:** 5.1 (revisada a partir da v4.0)
+**Versão:** 5.1 (consolidada a partir da v4.0)
 **Licença:** GNU General Public License (GPL)
-**Última revisão:** 2026
+**Última revisão:** Setembro de 2026
 
 ---
 
@@ -18,7 +18,7 @@
 7. [Cadastro da Criança](#7-cadastro-da-criança)
 8. [Cadastro de Irmãos](#8-cadastro-de-irmãos)
 9. [Conferência da Inscrição](#9-conferência-da-inscrição)
-10. [Comprovante de Inscrição](#10-comprovante-de-inscrição)
+10. [Comprovante de Inscrição e Backup Lógico](#10-comprovante-de-inscrição-e-backup-lógico)
 11. [Consulta de Inscrições](#11-consulta-de-inscrições)
 12. [Relatórios e Distribuição às Unidades](#12-relatórios-e-distribuição-às-unidades)
 13. [Regras de Negócio Consolidadas](#13-regras-de-negócio-consolidadas)
@@ -33,23 +33,25 @@
 
 ### 1.1 Nome do Produto
 
-**Sistema de Inscrição em Creches (Censo Anual de Demanda)**
+**Sistema de Inscrição em Creches — Censo Anual de Demanda**
 
 ### 1.2 Propósito
 
-Disponibilizar uma aplicação web local, com banco de dados armazenado na própria máquina da **Secretaria Municipal de Educação**, para realizar o **Censo Anual de Demanda** por novas vagas em creches da rede municipal.
+Disponibilizar uma aplicação web local para realizar o **Censo de Demanda Anual** de novas vagas em creches da rede municipal.
 
-O sistema opera em uma janela fixa (**setembro a outubro**) para que a Secretaria levante quantas crianças necessitarão de vaga no **ano letivo seguinte**, permitindo:
+O sistema opera em uma janela fixa (**setembro a outubro**) para que a Secretaria Municipal de Educação levante quantas crianças necessitarão de vaga no **ano letivo seguinte**.
 
-- cadastro padronizado das inscrições, por unidade (creche) pretendida
-- **reutilização inteligente de dados históricos**: ao digitar o CPF, o sistema busca inscrições de anos anteriores e oferece a importação de **todos os campos** (incluindo unidade e turma), evitando retrabalho no atendimento presencial
-- geração de comprovante de inscrição
-- geração de relatórios simples para apoio ao planejamento
+O armazenamento é centralizado na máquina da Secretaria, operado por um único funcionário, e tem como objetivos:
+
+- cadastro padronizado e rápido das intenções de vaga por unidade
+- reutilização de dados cadastrais de anos anteriores para evitar retrabalho
+- geração de comprovante de inscrição para o responsável
+- geração de relatórios para planejamento da rede
 - geração de listas de inscritos para envio a cada unidade
 
-> **Nota de escopo:** o sistema registra a **intenção de vaga (pré-matrícula)**. Critérios de priorização, chamada e matrícula definitiva continuam fora do escopo do sistema, sendo decisões administrativas externas.
+> **Nota de escopo:** o sistema realiza o levantamento de demanda (pré-matrículas). A alocação de vagas, chamada pública e matrícula definitiva continuam sendo processos administrativos externos ao sistema.
 >
-> **Nota sobre as unidades:** as creches **não acessam o sistema**. Todo o cadastro, inscrição e consulta é feito exclusivamente pelo Operador na Secretaria. Cada unidade recebe apenas a **lista de inscritos referente a si**, gerada e entregue pela Secretaria (impressa ou em arquivo).
+> **Nota sobre as unidades:** as creches **não acessam o sistema**. Todo o cadastro é feito exclusivamente pelo Operador na Secretaria. Cada unidade recebe apenas a **lista de inscritos referente a si**, gerada e entregue pela Secretaria (impressa ou em arquivo).
 
 ### 1.3 Licença
 
@@ -67,16 +69,16 @@ O sistema é distribuído sob **GNU General Public License (GPL)**.
 
 ## 2. Problema a Ser Resolvido
 
-O processo de inscrição, quando feito manualmente ou em planilhas soltas, apresenta:
+O processo de levantamento de demanda, quando feito manualmente ou em planilhas soltas, apresenta:
 
 - risco de duplicidade de inscrições para a mesma criança no mesmo ano
-- dificuldade de localizar inscrições antigas
-- **retrabalho massivo**: responsáveis precisam ditar nome, endereço e documentos todo ano
+- dificuldade de localizar inscrições de anos anteriores para reaproveitar dados
+- retrabalho significativo ao redigitar nomes, endereços e documentos a cada ano
 - ausência de comprovante padronizado para o responsável
 - dificuldade de consolidar números para planejamento de vagas
 - dificuldade de repassar às unidades, de forma organizada, a lista de crianças inscritas para cada uma delas
 
-O sistema centraliza esse registro em uma aplicação local simples, operada por um único funcionário na Secretaria, que **aprende com o histórico** para agilizar atendimentos futuros.
+O sistema centraliza esse registro em uma aplicação local simples, que aprende com o histórico e acelera o atendimento presencial.
 
 ---
 
@@ -88,7 +90,7 @@ O sistema possui **um único perfil de usuário**: o **Operador** — o funcion�
 - cadastrar unidades (creches) e turmas
 - registrar inscrições
 - cadastrar responsáveis e crianças durante o processo de inscrição
-- editar registros **apenas durante o período ativo da campanha**
+- editar registros **durante o período ativo da campanha**
 - consultar inscrições (inclusive de anos anteriores)
 - reemitir comprovantes de inscrição
 - gerar relatórios e listas por unidade
@@ -96,7 +98,7 @@ O sistema possui **um único perfil de usuário**: o **Operador** — o funcion�
 
 **Restrições:**
 - não é possível excluir inscrições já registradas
-- após o encerramento do período (outubro), o sistema entra em **modo apenas-consulta** para aquele ano
+- após o encerramento do período de campanha, o sistema entra em modo **somente leitura** para aquele ano
 
 > As unidades escolares não possuem login nem acesso ao sistema — recebem apenas a lista de inscritos referente a si, fornecida pelo Operador.
 
@@ -104,25 +106,19 @@ O sistema possui **um único perfil de usuário**: o **Operador** — o funcion�
 
 ## 4. Fluxo Principal do Sistema
 
-1. abrir a aplicação (login simples, ver seção 5.1)
-2. definir o **Ano de Referência** (ex: 2027) ao iniciar a campanha
-3. cadastrar unidades (creches) e turmas (reutilizar do ano anterior ou ajustar)
+1. abrir a aplicação (login com senha local)
+2. definir o **Ano de Referência** (ex.: 2027) ao iniciar a campanha
+3. cadastrar unidades (creches) e turmas (pode ser reutilizado do ano anterior)
 4. iniciar inscrição informando o CPF da criança
-5. **sistema verifica:**
-   - já existe inscrição para o **ano vigente** com este CPF? → bloqueia e exibe data/hora da inscrição já registrada
-   - existe inscrição em **anos anteriores**? → oferece importação automática:
-     > *"Dados de [ANO] encontrados. Deseja importá-los para agilizar o cadastro deste ano?"*
-     - se **SIM**: pré-preenche **todos os campos** (responsável, criança, endereço, situação socioeconômica, documentos, saúde, unidade e turma pretendidas)
-     - se **NÃO**: abre formulário em branco
-   - não existe histórico → formulário em branco
-6. cadastrar/confirmar responsável
-7. cadastrar/confirmar criança, editando o que for necessário (unidade e turma podem ser alteradas livremente)
-8. cadastrar irmãos (se houver) — com reuso de dados e limpeza por clique no campo
-9. conferir dados da inscrição (resumo completo)
-10. editar informações se necessário
-11. registrar inscrição vinculada ao **Ano de Referência vigente**
-12. sistema gera **PDF do comprovante + arquivo JSON** automaticamente
-13. entregar comprovante ao responsável e armazenar o JSON (backup lógico)
+5. sistema verifica duplicidade no ano vigente e, se for o caso, oferece importação de dados de anos anteriores
+6. cadastrar ou confirmar dados do responsável
+7. cadastrar ou confirmar dados da criança, incluindo a unidade pretendida
+8. cadastrar irmãos (se houver), reutilizando dados do responsável
+9. conferir dados da inscrição no resumo
+10. editar informações se necessário (somente durante o período ativo)
+11. registrar inscrição vinculada ao Ano de Referência
+12. gerar comprovante em PDF + arquivo JSON de backup
+13. entregar comprovante ao responsável
 14. consultar inscrições
 15. gerar relatórios e listas por unidade
 
@@ -146,10 +142,11 @@ Como o sistema roda em uma única máquina operada por um único funcionário, a
 
 ### 5.2 Cadastro de Unidades (Creches)
 
-**Campos da unidade:**
+**Campos da unidade (inseridos pelo Operador):**
 - nome da unidade
 - endereço completo
-- telefone/contato (para envio da lista de inscritos)
+
+> O campo `id` é gerado automaticamente pelo sistema como chave primária, sem intervenção do Operador.
 
 ---
 
@@ -157,19 +154,20 @@ Como o sistema roda em uma única máquina operada por um único funcionário, a
 
 Cada turma é vinculada a uma unidade.
 
-**Campos da turma:**
-- unidade (creche)
+**Campos da turma (inseridos pelo Operador):**
+- unidade (creche) — seleção em lista
 - nome da turma (ex.: Berçário I, Berçário II, 1º Período, 2º Período)
 - turno (manhã, tarde ou integral)
 - faixa etária mínima (em meses ou anos completos em 31/03)
 - faixa etária máxima (em meses ou anos completos em 31/03)
-- número de vagas disponíveis
+
+> **Campo removido:** número de vagas — este dado não é utilizado, pois o sistema não faz alocação de vagas, apenas levantamento de demanda.
 
 ---
 
 ### 5.4 Regra de Corte Etário
 
-A elegibilidade da criança considera o **corte etário de 31 de março do Ano de Referência**.
+A elegibilidade da criança considera o **corte etário de 31 de março do Ano de Referência** (definido na abertura da campanha).
 
 **Comportamento do sistema:**
 - calcular automaticamente a idade na data de corte com base na data de nascimento
@@ -180,23 +178,23 @@ A elegibilidade da criança considera o **corte etário de 31 de março do Ano d
 
 ### 5.5 Período de Inscrição e Início da Inscrição
 
-O período de inscrição é **fixo**: **setembro a outubro** de cada ano (data limite configurável, mas definida institucionalmente). Após o encerramento, o sistema entra em modo leitura para aquele ano.
+O período de inscrição é **fixo**: **setembro a outubro** de cada ano. O sistema não permite novos cadastros ou edições fora desta janela (apenas consultas).
 
 **Início da inscrição:** o Operador informa o **CPF da criança**.
 
 **Comportamento do sistema:**
 
-1. Verificar se já existe inscrição associada ao CPF **para o ano de referência vigente**.
-2. **Se existir:** bloquear nova inscrição e exibir mensagem: *"CPF já inscrito para a campanha de [ANO]. Inscrição registrada em [data/hora]."*
-3. **Se não existir:** pesquisar no histórico (todos os anos anteriores).
-   - **Se encontrado:** exibir caixa de diálogo:
+1. Verificar se já existe inscrição associada ao CPF **para o Ano de Referência vigente**.
+2. **Se existir:** bloquear nova inscrição e exibir data, horário e unidade da inscrição já registrada neste ano.
+3. **Se não existir para o ano vigente:** pesquisar no histórico (anos anteriores).
+   - **Se encontrado histórico:** exibir caixa de diálogo:
      > *"Encontramos os dados da criança referentes a [ANO anterior]. Deseja importá-los para agilizar o cadastro deste ano? Você poderá editar todos os campos antes de salvar."*
-     - Se **SIM**: pré-preencher **todos** os campos do formulário (incluindo unidade e turma pretendidas).
-     - Se **NÃO**: iniciar formulário em branco.
-   - **Se não encontrado:** iniciar formulário em branco.
+     - **SIM**: pré-preencher **todos** os campos do formulário (responsável, criança, endereço, situação socioeconômica, documentos, saúde, **unidade e turma pretendidas**).
+     - **NÃO**: iniciar formulário em branco.
+   - **Se não encontrado histórico:** iniciar formulário em branco.
 4. O Operador pode editar qualquer campo pré-preenchido antes de salvar. A edição da unidade ou turma é livre, desde que respeitada a faixa etária (o sistema recalcula a sugestão com base na idade).
 
-> **Nota sobre importação:** a importação de dados históricos **não altera nem apaga** o registro do ano anterior. Ela apenas copia os valores para o novo registro do ano vigente.
+> **Nota:** A importação de dados históricos **não edita nem apaga** os registros antigos — ela apenas copia os valores para criar um novo registro no ano vigente.
 
 ---
 
@@ -247,8 +245,6 @@ Coletadas para fins de planejamento interno da rede de creches.
 - unidade (creche) pretendida — o responsável pode escolher livremente qualquer unidade da rede
 - turma pretendida (sugerida automaticamente pelo sistema com base na unidade selecionada e no corte etário; seleção incompatível é bloqueada)
 
-> **Na importação de dados históricos:** unidade e turma são pré-preenchidas com os valores do ano anterior. O Operador pode alterá-las livremente.
-
 ### 7.3 Situação Documental
 
 - certidão em que não conste pai ou mãe
@@ -279,15 +275,12 @@ Após concluir o cadastro de uma criança, o sistema pergunta:
 > **Deseja cadastrar irmão(ã) desta criança?**
 
 Se positivo:
-- abre novo formulário de criança
-- reutiliza automaticamente **todos os dados do responsável** já cadastrado
+- abre novo formulário, reutilizando automaticamente **todos os dados do responsável**
 - os campos **Nome do Pai** e **Nome da Mãe** vêm pré-preenchidos com os valores da criança anterior (pois, na maioria dos casos, são os mesmos)
-- o Operador pode **clicar diretamente sobre qualquer campo** que deseje alterar. Ao clicar (evento `onFocus`), o campo é **limpo automaticamente**, permitindo nova digitação sem necessidade de apagar manualmente
+- o Operador pode **clicar diretamente sobre qualquer campo** que deseje alterar. Ao clicar, o campo é limpo automaticamente (evento `onFocus`), permitindo nova digitação sem precisar apagar manualmente
 - os campos que não forem clicados mantêm os valores pré-preenchidos
 
-**Exemplo:** Se o pai da segunda criança for diferente, o Operador clica no campo "Nome do Pai", ele se esvazia, e digita o nome correto. O campo "Nome da Mãe" permanece inalterado.
-
-Todos os campos permanecem editáveis.
+**Exemplo:** Se o pai for diferente, o Operador clica no campo "Nome do Pai", ele se esvazia, e digita o nome correto. O campo "Nome da Mãe" permanece inalterado.
 
 ---
 
@@ -309,7 +302,7 @@ O Operador pode voltar a qualquer seção para corrigir informações antes de c
 
 ---
 
-## 10. Comprovante de Inscrição
+## 10. Comprovante de Inscrição e Backup Lógico
 
 Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 
@@ -318,7 +311,7 @@ Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 **Identificação da inscrição:**
 - número da inscrição
 - data e hora do registro
-- ano de referência
+- ano de referência (ex.: 2027)
 
 **Dados da criança:**
 - nome completo, CPF, data de nascimento, nome do pai, nome da mãe
@@ -336,7 +329,7 @@ Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 
 ### 10.3 Segurança do PDF e Backup Lógico
 
-- O PDF é gerado com proteção de abertura por senha baseada no CPF da criança (apenas dígitos). Serve para controle de distribuição.
+- O PDF do comprovante é gerado com proteção por senha baseada no CPF da criança (apenas dígitos). Serve para controle de distribuição — os dados ficam armazenados localmente no banco de dados da máquina.
 - **Simultaneamente à geração do PDF**, o sistema cria um arquivo **JSON** no mesmo diretório, contendo **todos os campos da inscrição** em formato estruturado e legível (sem criptografia).
 - **Finalidade do JSON:** servir como **fonte de recuperação de desastres**. Caso o banco de dados local corrompa, o Operador pode reimportar as inscrições a partir dos JSONs armazenados, sem perda de informações.
 - O nome do arquivo JSON segue o padrão: `inscricao_CPF_ANO.json` (ex: `inscricao_12345678900_2027.json`).
@@ -351,13 +344,12 @@ Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 - CPF da criança
 - número da inscrição
 - unidade (creche)
-- ano de referência
+- ano de referência (filtro opcional)
 
 ### 11.2 Funcionalidades
 
 - visualizar dados completos da inscrição selecionada
-- reemitir comprovante de inscrição
-- visualizar histórico do CPF (anos anteriores)
+- reemitir comprovante de inscrição (PDF + JSON)
 
 ---
 
@@ -365,22 +357,22 @@ Após registrar a inscrição, o sistema gera automaticamente um comprovante.
 
 ### 12.1 Tipos de Relatórios
 
-**Lista geral de inscritos (por ano):**
+**Lista geral de inscritos por ano:**
 - número da inscrição, nome da criança, unidade, turma pretendida, data da inscrição
 
 **Lista de inscritos por unidade** (para envio à respectiva creche):
 - nome da criança, data de nascimento, turma pretendida, dados do responsável e contato
-- gerada individualmente para cada unidade, contendo apenas os inscritos daquela creche **para o ano vigente**
+- gerada individualmente para cada unidade, contendo apenas os inscritos daquela creche para o ano vigente
 
 **Inscrições por turma pretendida ou faixa etária:**
-subsidia o planejamento da oferta de vagas
+- subsidia o planejamento da oferta de vagas
 
 **Relatórios por critérios sociais:**
 - renda per capita, situação de vulnerabilidade social, benefícios sociais declarados, encaminhamentos institucionais registrados
 
 ### 12.2 Filtros
 
-Todos os relatórios devem permitir filtragem por **unidade** e **ano de referência** e, quando aplicável, por **faixa etária**.
+Todos os relatórios devem permitir filtragem por **unidade** e, quando aplicável, por **faixa etária** e **ano de referência**.
 
 ### 12.3 Exportação
 
@@ -394,16 +386,15 @@ Todos os relatórios devem permitir filtragem por **unidade** e **ano de referê
 | # | Regra |
 | :--- | :--- |
 | 1 | O CPF da criança é o identificador único **por ano de referência**. |
-| 2 | Uma mesma criança pode ter inscrições em anos diferentes (ex: 2026 e 2027), mas **nunca duas no mesmo ano**. |
-| 3 | O CPF é campo obrigatório para iniciar o processo. |
+| 2 | Uma mesma criança pode ter inscrições em anos diferentes (ex.: 2026 e 2027), mas nunca duas no mesmo ano. |
+| 3 | O CPF é campo obrigatório para iniciar o processo de inscrição. |
 | 4 | A idade da criança é calculada com base no corte etário de **31 de março do Ano de Referência**. |
 | 5 | O sistema sugere a turma compatível (com base na unidade selecionada e na idade) e bloqueia seleções incompatíveis. |
-| 6 | Campos lógicos (checkboxes) são exibidos no resumo apenas quando verdadeiros. |
+| 6 | Campos lógicos (checkboxes) aparecem no resumo apenas quando verdadeiros. |
 | 7 | **Edições:** permitidas **apenas durante o período ativo da campanha** (set-out). Após a data limite, o sistema fica em modo leitura para todos os registros daquele ano. |
 | 8 | A importação de dados históricos **não edita nem apaga** os registros antigos — ela apenas copia os valores para criar um novo registro no ano vigente. |
 | 9 | Nenhuma inscrição pode ser excluída (apenas inativada administrativamente, se necessário). |
 | 10 | O comprovante é gerado em PDF com senha + JSON de backup obrigatório. |
-| 11 | Cada unidade tem acesso apenas à lista de inscritos referente a si — nunca ao sistema. |
 
 ---
 
@@ -423,14 +414,13 @@ Todos os relatórios devem permitir filtragem por **unidade** e **ano de referê
 ### Usabilidade
 
 - formulários simples e objetivos
-- preenchimento automático sempre que possível (CPF pré-preenchido, turma sugerida, dados do responsável reutilizados para irmãos, **importação completa de anos anteriores**)
-- no cadastro de irmãos, clique no campo para limpá-lo (`onFocus`)
+- preenchimento automático sempre que possível (CPF pré-preenchido, turma sugerida, dados do responsável reutilizados para irmãos, importação de anos anteriores)
 - mensagens de erro claras e orientadas à ação
 
 ### Integridade de Dados
 
 - validação de CPF (dígitos verificadores)
-- prevenção de duplicidade por CPF **no mesmo ano**
+- prevenção de duplicidade por CPF no mesmo ano
 - validação de faixa etária conforme corte de 31 de março
 - campos obrigatórios validados antes do registro
 
@@ -442,19 +432,19 @@ Todos os relatórios devem permitir filtragem por **unidade** e **ano de referê
 ### Backup e Recuperação
 
 - rotina de backup local do banco de dados (ex.: cópia periódica do arquivo de banco para outro local/mídia), com periodicidade mínima diária
-- **backup lógico complementar:** cada inscrição gera um arquivo JSON individual, permitindo recuperação granular em caso de falha
 - procedimento simples documentado de restauração do backup em caso de falha da máquina
+- **camada extra de recuperação:** os arquivos JSON gerados a cada inscrição podem ser reimportados individualmente em caso de perda parcial de dados
 
 ---
 
 ## 15. Registro de Alterações (Histórico)
 
-Mantém-se um **histórico simplificado de alterações**, útil para corrigir erros de digitação e rastrear o que foi modificado — durante o período ativo da campanha.
+Mantém-se um **histórico simplificado de alterações**, útil para corrigir erros de digitação e rastrear o que foi modificado — já que edições podem ocorrer durante a janela ativa.
 
 ### 15.1 Operações Registradas
 
 - criação de inscrições, unidades, turmas
-- edição de registros (apenas durante a janela ativa)
+- edição de registros (durante o período ativo)
 
 ### 15.2 Informações Registradas por Evento
 
@@ -474,33 +464,33 @@ Mantém-se um **histórico simplificado de alterações**, útil para corrigir e
 
 - há **várias creches (unidades)**; o atendimento e o registro no sistema são **centralizados na Secretaria Municipal de Educação**
 - as unidades não acessam o sistema — recebem apenas a lista de inscritos referente a si
-- o período de inscrição ocorre **anualmente, entre setembro e outubro**, para levantamento da demanda do ano seguinte
+- o sistema opera em **campanhas anuais**, com janela fixa de **setembro a outubro** para o ano letivo seguinte
 - o volume anual de inscrições costuma ficar **abaixo de 400 crianças**
 - o atendimento é **presencial**, por ordem de chegada, com distribuição de senha física (gestão da fila é feita fora do sistema)
-- o sistema registra a **intenção de vaga (pré-matrícula)**, não são matrículas definitivas
+- o sistema registra **pré-matrículas (levantamento de demanda)**, não são matrículas definitivas
 - algumas documentações são apenas conferidas presencialmente, podendo permanecer arquivadas fisicamente
 - o cadastro pode ser realizado por responsável legal, familiar ou cuidador
 
 ### Persistência de Registros
 
-- nenhuma inscrição poderá ser excluída do sistema
+- nenhuma pré-matrícula poderá ser excluída do sistema
 - todos os registros permanecem armazenados no banco de dados local para consulta e análise histórica
-- edições são permitidas **apenas durante o período ativo da campanha**; após o encerramento, os dados daquele ano tornam-se somente leitura
+- edições permanecem possíveis **apenas durante a janela ativa da campanha**; após o encerramento, os dados daquele ano ficam congelados
 
 ### Distribuição às Unidades
 
-- a lista de inscritos de cada unidade (para o ano vigente) é gerada pelo Operador e entregue à creche correspondente (impressa ou em arquivo)
+- a lista de inscritos de cada unidade é gerada pelo Operador e entregue à creche correspondente (impressa ou em arquivo) **após o encerramento da campanha**
 - a unidade não possui qualquer forma de acesso direto ao sistema
 
 ---
 
 ## 17. Decisões de Escopo
 
-Este documento reflete as seguintes decisões de escopo tomadas durante a revisão da versão 4.0:
+Para fins de clareza, ficam registradas as seguintes decisões de escopo que orientaram a construção desta versão:
 
-1. **Sazonalidade anual:** o sistema opera em campanhas fixas (set-out), vinculando cada inscrição a um "Ano de Referência".
-2. **Reuso de dados históricos:** ao digitar um CPF, o sistema busca anos anteriores e oferece importação completa de todos os campos, evitando retrabalho.
-3. **Edição controlada:** edições são permitidas apenas durante o período ativo. Após outubro, os dados daquele ano são congelados.
-4. **Backup em JSON:** cada comprovante PDF é acompanhado de um arquivo JSON com todos os dados da inscrição, servindo como fonte de recuperação de desastres.
-5. **Cadastro de irmãos:** campos são limpos ao serem clicados (`onFocus`), dando controle total ao Operador sobre quais dados reutilizar.
-6. **Bloqueio de duplicidade:** uma criança pode ter inscrições em anos diferentes, mas nunca duas no mesmo ano.
+- o sistema é um **censo de demanda**, não um sistema de alocação de vagas
+- o número de vagas por turma **não é cadastrado** no sistema
+- o período de coleta é **fixo (set-out)** e não configurável pelo Operador
+- os dados de um ano podem ser **importados** para o ano seguinte, mas geram um **novo registro** independente
+- a edição de registros é permitida **apenas durante o período ativo**
+- o JSON gerado junto com o PDF é a **camada primária de recuperação de desastres**
