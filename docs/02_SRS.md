@@ -1,8 +1,9 @@
 # SRS — Sistema de Inscrição em Creches (Censo Anual de Demanda)
 
-**Versão:** 1.0  
+**Versão:** 1.1  
 **Data:** Setembro de 2026  
-**Licença:** GNU General Public License (GPL)
+**Licença:** GNU General Public License (GPL)  
+**Alteração principal:** Desnormalização das tabelas de responsável e criança para uma única tabela `inscricoes`.
 
 ---
 
@@ -52,7 +53,7 @@ O sistema cobre:
 
 - Cadastro de unidades (creches) e turmas (realizado exclusivamente pelo suporte técnico).
 - Registro de inscrições de crianças para um ano de referência (campanha anual).
-- Cadastro de responsáveis e crianças durante o processo de inscrição.
+- Cadastro único de todas as informações da inscrição (responsável, criança, solicitação de vaga).
 - Verificação de duplicidade por CPF no ano vigente.
 - Geração de comprovante de inscrição em PDF protegido por senha e arquivo JSON de backup.
 - Consulta de inscrições com filtros.
@@ -108,10 +109,10 @@ O sistema oferece as seguintes funções principais:
 
 - Autenticação local com senha única.
 - Cadastro de unidades e turmas (restrito ao suporte).
-- Registro e edição de inscrições durante o período de campanha.
+- Registro e edição de inscrições durante o período de campanha, em um único formulário.
 - Verificação de duplicidade por CPF no ano vigente.
 - Cálculo automático de idade e sugestão/bloqueio de turma.
-- Cadastro de responsáveis e crianças, com reutilização de dados para irmãos.
+- Reutilização de dados do responsável para irmãos.
 - Geração de comprovante PDF e JSON de backup.
 - Consulta de inscrições com filtros e reemissão de comprovante.
 - Geração de relatórios (lista geral, lista por unidade, por turma/faixa etária, por critérios sociais) e exportação CSV.
@@ -132,6 +133,7 @@ O sistema oferece as seguintes funções principais:
 - O sistema não possui interface para importação de dados de anos anteriores (versão futura).
 - A autenticação do operador não possui recuperação de senha pela interface (apenas suporte).
 - O acesso ao gerenciamento de unidades/turmas é feito por rota oculta com senha de suporte.
+- A desnormalização elimina tabelas separadas de responsável e criança; todos os dados residem na tabela `inscricoes`.
 
 ### 2.5 Suposições e Dependências
 
@@ -149,9 +151,9 @@ O sistema oferece as seguintes funções principais:
 #### 3.1.1 Autenticação
 
 **RF-01 – Login**  
-O sistema deve apresentar tela de login solicitando a senha local. O usuário único é "operador".  
+O sistema deve apresentar tela de login solicitando nome de usuário e senha. O usuário único é "operador".  
 **RF-02 – Validação de senha**  
-A senha deve ser armazenada em hash (ex.: bcrypt) no banco de dados local.  
+A senha deve ser armazenada em hash bcrypt no banco de dados local.  
 **RF-03 – Bloqueio por tentativas**  
 Após 5 tentativas inválidas consecutivas, o sistema deve bloquear o acesso por 5 minutos, exibindo mensagem de tempo restante.  
 **RF-04 – Sem recuperação de senha**  
@@ -185,23 +187,24 @@ Ao perder o foco, o sistema deve validar:
 - Dígitos verificadores (algoritmo oficial).  
 Em caso de erro, exibir mensagem específica: "CPF deve conter 11 dígitos" ou "Número de CPF inválido".  
 **RF-13 – Verificação de duplicidade no ano**  
-O sistema deve verificar se já existe inscrição ativa (ou inativada) para o CPF no ano de referência corrente. Se existir, bloquear nova inscrição e exibir data, hora e unidade da inscrição existente.  
+O sistema deve verificar se já existe inscrição para o CPF no ano de referência corrente. Se existir, bloquear nova inscrição e exibir data, hora e unidade da inscrição existente.  
 **RF-14 – Histórico**  
 Se não houver inscrição no ano vigente, o sistema deve pesquisar histórico de anos anteriores. Na versão atual, não há importação automática; apenas exibir mensagem informando que não há dados importáveis.
 
 > **Nota:** A funcionalidade de importação de dados imutáveis de anos anteriores será implementada em versão futura, quando houver base histórica.
 
-#### 3.1.5 Cadastro do Responsável
+#### 3.1.5 Cadastro da Inscrição (Formulário Único)
 
-**RF-15 – Formulário do responsável**  
-O sistema deve apresentar formulário com os seguintes campos (todos obrigatórios, exceto quando indicado):  
-- Nome completo  
+**RF-15 – Formulário único**  
+O sistema deve apresentar um único formulário contendo todas as seções: dados do responsável, dados da criança, situação socioeconômica, documentos, encaminhamentos, dados sociais/saúde, unidade pretendida, turma pretendida e turno desejado.  
+**RF-16 – Campos do responsável**  
+- Nome completo (obrigatório)  
 - CPF (obrigatório, validado)  
 - RG  
 - Parentesco (mãe, pai, responsável legal, familiar, cuidador)  
-- Telefone de contato  
-- Endereço: logradouro, número, complemento, bairro, município, UF, CEP, ponto de referência  
-- Situação socioeconômica (checkboxes, não obrigatórios):  
+- Telefone de contato (obrigatório)  
+- Endereço: logradouro, número, complemento, bairro, município, UF, CEP, ponto de referência (todos obrigatórios, exceto complemento e referência)  
+- Situação socioeconômica (checkboxes não obrigatórios):  
   - Mãe com vínculo empregatício  
   - Demonstrativo de crédito ou benefício  
   - LOAS / BPC / seguro-desemprego  
@@ -209,15 +212,9 @@ O sistema deve apresentar formulário com os seguintes campos (todos obrigatóri
   - Mãe matriculada em rede pública de ensino  
   - Situação de vulnerabilidade social  
   - Declaração escolar de mãe adolescente  
-- Renda per capita familiar (obrigatório, com máscara monetária, valor decimal positivo)  
+- Renda per capita familiar (obrigatório, com máscara monetária, valor decimal positivo)
 
-**RF-16 – Validação de campos**  
-Antes de prosseguir, o sistema deve validar: CPF do responsável válido, campos de identificação e endereço preenchidos, renda per capita numérica positiva. Exibir mensagens de erro específicas.
-
-#### 3.1.6 Cadastro da Criança
-
-**RF-17 – Formulário da criança**  
-Após o responsável, apresentar formulário com:  
+**RF-17 – Campos da criança**  
 - Nome completo (obrigatório)  
 - Data de nascimento (obrigatório)  
 - CPF (pré-preenchido, somente leitura)  
@@ -253,48 +250,48 @@ Com base na unidade selecionada e na idade calculada, o sistema deve:
 - Se nenhuma turma for compatível, exibir mensagem e impedir o prosseguimento (turma obrigatória).  
 - Ao alterar a data de nascimento, recalcular idade, limpar seleção de turma se incompatível e alertar o operador.
 
-#### 3.1.7 Cadastro de Irmãos
+#### 3.1.6 Cadastro de Irmãos
 
 **RF-20 – Pergunta de irmão**  
-Após concluir o cadastro de uma criança, o sistema deve perguntar: "Deseja cadastrar irmão(ã) desta criança?"  
+Após concluir o cadastro de uma inscrição, o sistema deve perguntar: "Deseja cadastrar irmão(ã) desta criança?"  
 **RF-21 – Reutilização de dados**  
-Se positivo, abrir novo formulário de inscrição com os dados do responsável pré-preenchidos (referenciando o mesmo registro ou copiando os valores). Os campos Nome do Pai e Nome da Mãe são pré-preenchidos com os valores da criança anterior.  
+Se positivo, abrir novo formulário único com os campos do responsável pré-preenchidos com os dados da inscrição anterior. Os campos Nome do Pai e Nome da Mãe são pré-preenchidos com os valores da criança anterior.  
 **RF-22 – Comportamento onFocus**  
 Ao clicar em qualquer campo do responsável ou filiação (Nome do Pai, Nome da Mãe, etc.), o campo deve ser limpo automaticamente para nova digitação. Os demais campos permanecem inalterados.  
 **RF-23 – Validação do CPF do responsável**  
-Se o CPF for alterado, deve ser validado novamente.  
+Se o CPF do responsável for alterado, deve ser validado novamente.  
 **RF-24 – Sem limite de irmãos**  
 O sistema não impõe limite máximo de irmãos cadastrados consecutivamente.
 
-#### 3.1.8 Conferência e Registro da Inscrição
+#### 3.1.7 Conferência e Registro da Inscrição
 
 **RF-25 – Resumo de conferência**  
 Antes de salvar, exibir resumo completo com todos os dados informados (responsável, criança, situação socioeconômica, documentos, encaminhamentos, dados sociais/saúde, unidade, turma, turno). Campos lógicos (checkboxes) aparecem somente se marcados como verdadeiros.  
 **RF-26 – Possibilidade de edição**  
-O operador pode voltar a qualquer seção para corrigir dados.  
+O operador pode voltar a qualquer seção do formulário para corrigir dados.  
 **RF-27 – Registro**  
-Ao confirmar, o sistema deve gravar a inscrição vinculada ao ano de referência, com número de inscrição gerado automaticamente (sequencial por ano).  
+Ao confirmar, o sistema deve gravar uma nova linha na tabela `inscricoes` vinculada ao ano de referência, com número de inscrição gerado automaticamente (sequencial por ano).  
 **RF-28 – Geração de comprovante e JSON**  
 Simultaneamente ao registro, gerar:  
 - PDF do comprovante (nome do arquivo: `comprovante_CPF_ANO.pdf`) com senha igual ao CPF da criança (apenas dígitos).  
 - JSON de backup (nome do arquivo: `inscricao_CPF_ANO.json`) contendo todos os campos da inscrição, incluindo nulos, no diretório definido na instalação.
 
-#### 3.1.9 Edição e Inativação de Inscrições
+#### 3.1.8 Edição e Inativação de Inscrições
 
 **RF-29 – Edição durante campanha**  
 O operador pode editar qualquer campo da inscrição durante o período ativo. Ao salvar a edição, o sistema deve:  
 - Atualizar o JSON correspondente (sobrescrever).  
 - Gerar novo PDF (sobrescrever) e exibir mensagem alertando o operador para entregar o comprovante atualizado ao responsável.  
-- Registrar a alteração no histórico (seção 3.1.11).  
+- Registrar a alteração no histórico (seção 3.1.10).  
 **RF-30 – Inativação**  
 O operador pode inativar uma inscrição acessando o cadastro e clicando em "Inativar". O sistema deve exigir justificativa (campo texto obrigatório). Uma inscrição inativada:  
 - Permanece visível nas consultas com indicador visual.  
 - Não é considerada nos relatórios por padrão, mas pode ser incluída se o filtro de status for ajustado.  
 - Não libera o CPF para nova inscrição no mesmo ano.  
 **RF-31 – Reativação**  
-Inscrições inativadas podem ser reativadas somente durante o período ativo, mediante justificativa. O evento deve ser registrado no histórico.  
+Inscrições inativadas podem ser reativadas somente durante o período ativo, mediante justificativa. O evento deve ser registrado no histórico.
 
-#### 3.1.10 Consulta de Inscrições
+#### 3.1.9 Consulta de Inscrições
 
 **RF-32 – Critérios de busca**  
 O sistema deve permitir busca por:  
@@ -305,22 +302,22 @@ O sistema deve permitir busca por:
 - Ano de referência (filtro opcional)  
 
 **RF-33 – Visualização**  
-Exibir lista de inscrições correspondentes com status (ativa/inativada). Ao selecionar uma, mostrar todos os dados completos.  
+Exibir lista de inscrições correspondentes com status (ativa/inativada). Ao selecionar uma, mostrar todos os dados completos (dados do responsável, criança, solicitação).  
 **RF-34 – Reemissão de comprovante**  
 Permitir reemitir o comprovante (PDF) e o JSON, sobrescrevendo os arquivos existentes.
 
-#### 3.1.11 Histórico de Alterações
+#### 3.1.10 Histórico de Alterações
 
 **RF-35 – Registro automático**  
 O sistema deve registrar automaticamente eventos de criação e edição de inscrições, unidades e turmas, com:  
 - Data e hora  
-- Entidade afetada (inscrição, unidade, turma)  
+- Entidade afetada (inscricao, unidade, turma)  
 - Identificador do registro  
 - Campo alterado, valor anterior e novo (para edições)  
 **RF-36 – Consulta do histórico**  
-O histórico deve ser consultável por unidade, por criança e por ano.
+O histórico deve ser consultável por unidade, por criança (via CPF) e por ano.
 
-#### 3.1.12 Relatórios e Exportação
+#### 3.1.11 Relatórios e Exportação
 
 **RF-37 – Lista geral de inscritos por ano**  
 Relatório contendo número da inscrição, nome da criança, unidade, turma pretendida, data da inscrição. Ordenação: agrupado por unidade, depois por turma, e dentro de cada turma ordem crescente pelo nome da criança.  
@@ -339,7 +336,7 @@ Os relatórios são exibidos em tela (HTML) e podem ser impressos ou exportados.
 **RF-44 – Padrão de status**  
 Por padrão, os relatórios incluem apenas inscrições ativas. O operador pode optar por incluir inativadas.
 
-#### 3.1.13 Backup do Banco de Dados
+#### 3.1.12 Backup do Banco de Dados
 
 **RF-45 – Backup automático**  
 O sistema deve realizar backup automático do banco de dados diariamente às 11:00, copiando o arquivo do banco para o diretório `/home/operador/sicrem/backups_banco` (definido na instalação).  
@@ -348,12 +345,12 @@ O backup automático não deve exibir mensagens ao operador.
 **RF-47 – Restauração manual**  
 A restauração do banco a partir dos backups é feita manualmente pelo suporte técnico, sem interface específica no sistema.
 
-#### 3.1.14 Recuperação via JSON
+#### 3.1.13 Recuperação via JSON
 
 **RF-48 – Geração obrigatória**  
 A cada criação ou edição de inscrição, o sistema deve gerar/atualizar o JSON correspondente no diretório de backups.  
 **RF-49 – Conteúdo do JSON**  
-O JSON deve conter todos os campos das tabelas de banco relacionadas à inscrição, incluindo valores nulos.  
+O JSON deve conter todos os campos da tabela `inscricoes`, incluindo valores nulos.  
 **RF-50 – Reimportação manual**  
 O suporte técnico pode reimportar inscrições a partir dos JSONs usando ferramenta externa. O processo deve:  
 - Ler o JSON.  
@@ -396,7 +393,7 @@ Dados de saúde e sociais devem ser armazenados localmente com controle de acess
 ### 3.5 Requisitos de Banco de Dados
 
 **RB-01 – SGBD**  
-O banco de dados deve ser local e relacional (ex.: SQLite ou PostgreSQL), conforme definido na implementação.  
+O banco de dados deve ser local e relacional (PostgreSQL).  
 **RB-02 – Armazenamento de CPF**  
 CPFs devem ser armazenados como string de 11 dígitos, sem pontuação.  
 **RB-03 – Armazenamento de datas**  
@@ -409,10 +406,9 @@ Checkboxes devem ser armazenados como booleanos (`TRUE`/`FALSE`).
 O modelo mínimo deve incluir:  
 - `unidades` (id, nome, endereco, ativo)  
 - `turmas` (id, id_unidade, nome, idade_min_meses, idade_max_meses, ativo)  
-- `responsaveis` (id, nome, cpf, rg, parentesco, telefone, endereco..., renda_per_capita, ...)  
-- `criancas` (id, nome, data_nascimento, cpf, nome_pai, nome_mae, ...)  
-- `inscricoes` (id, ano_referencia, numero, data_registro, status, id_responsavel, id_crianca, id_unidade, id_turma, turno, ...)  
+- `inscricoes` (todos os campos de responsável, criança e solicitação, conforme detalhado na seção 5)  
 - `historico` (id, data_hora, entidade, registro_id, campo, valor_anterior, valor_novo, operador)  
+- `usuarios` (id, username, senha_hash, role)  
 - `configuracoes` (chave, valor) – para datas de campanha, diretórios, etc.
 
 ### 3.6 Requisitos de Backup e Recuperação
@@ -431,7 +427,7 @@ Documentar procedimento de restauração para o suporte, incluindo reimportaçã
 **RU-01 – Preenchimento automático**  
 Sempre que possível, pré-preencher campos (CPF, turma sugerida, dados de irmãos).  
 **RU-02 – Navegação simples**  
-Formulários em etapas claras, com botões "Voltar" e "Avançar".  
+Formulário único em seções claras, com possibilidade de navegar entre seções e botões "Voltar" e "Avançar" (se aplicável).  
 **RU-03 – Mensagens de erro**  
 Mensagens específicas e acionáveis.  
 **RU-04 – Acessibilidade**  
@@ -466,18 +462,19 @@ Nenhum dado de inscrição pode ser excluído definitivamente; apenas inativado.
 | 12 | O cadastro de irmãos reutiliza dados do responsável e pré-preenche filiação. |
 | 13 | A renda per capita é campo obrigatório e deve ser positiva. |
 | 14 | Unidades e turmas são perenes e gerenciadas apenas pelo suporte. |
+| 15 | Todos os dados da inscrição (responsável, criança, solicitação) são armazenados em uma única tabela `inscricoes`, sem separação. |
 
 ---
 
 ## 5. Modelo de Dados
 
-A seguir, a descrição das tabelas principais (os tipos de dados são sugestões; o banco pode ser SQLite ou outro).
+A seguir, a descrição das tabelas (os tipos de dados são sugestões; o banco é PostgreSQL).
 
 **Tabela `unidades`**
 
 | Campo | Tipo | Observações |
 |-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
+| id | SERIAL PK | Auto incremento |
 | nome | VARCHAR(150) | Obrigatório |
 | endereco | VARCHAR(300) | Obrigatório |
 | ativo | BOOLEAN | Default TRUE |
@@ -486,23 +483,28 @@ A seguir, a descrição das tabelas principais (os tipos de dados são sugestõe
 
 | Campo | Tipo | Observações |
 |-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
+| id | SERIAL PK | Auto incremento |
 | id_unidade | INTEGER FK | Referência a unidades.id |
 | nome | VARCHAR(100) | Ex.: "Berçário I" |
 | idade_min_meses | INTEGER | Obrigatório |
 | idade_max_meses | INTEGER | Obrigatório |
 | ativo | BOOLEAN | Default TRUE |
 
-**Tabela `responsaveis`**
+**Tabela `inscricoes`** (desnormalizada – contém todos os dados)
 
 | Campo | Tipo | Observações |
 |-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
-| nome | VARCHAR(150) | Obrigatório |
-| cpf | CHAR(11) | Obrigatório, único |
-| rg | VARCHAR(20) | |
-| parentesco | VARCHAR(50) | Obrigatório |
-| telefone | VARCHAR(20) | Obrigatório |
+| id | SERIAL PK | Auto incremento |
+| ano_referencia | INTEGER | Obrigatório (ex.: 2027) |
+| numero | INTEGER | Sequencial por ano, gerado automaticamente |
+| data_registro | TIMESTAMP | Data/hora da criação |
+| status | VARCHAR(20) | 'ativa' ou 'inativada' (default 'ativa') |
+| justificativa_status | TEXT | Usado na inativação/reativação |
+| resp_nome | VARCHAR(150) | Obrigatório |
+| resp_cpf | CHAR(11) | Obrigatório |
+| resp_rg | VARCHAR(20) | |
+| resp_parentesco | VARCHAR(50) | Obrigatório |
+| resp_telefone | VARCHAR(20) | Obrigatório |
 | end_logradouro | VARCHAR(150) | |
 | end_numero | VARCHAR(10) | |
 | end_complemento | VARCHAR(50) | |
@@ -511,66 +513,56 @@ A seguir, a descrição das tabelas principais (os tipos de dados são sugestõe
 | end_uf | CHAR(2) | |
 | end_cep | CHAR(8) | |
 | end_referencia | VARCHAR(150) | |
-| mae_vinculo_empregaticio | BOOLEAN | Default FALSE |
-| demonstrativo_credito | BOOLEAN | Default FALSE |
-| loas_bpc_seguro | BOOLEAN | Default FALSE |
-| trabalhador_autonomo | BOOLEAN | Default FALSE |
-| mae_matriculada | BOOLEAN | Default FALSE |
-| vulnerabilidade_social | BOOLEAN | Default FALSE |
-| declaracao_escolar_mae_adolescente | BOOLEAN | Default FALSE |
+| sit_mae_vinculo | BOOLEAN | Default FALSE |
+| sit_demonstrativo_credito | BOOLEAN | Default FALSE |
+| sit_loas_bpc | BOOLEAN | Default FALSE |
+| sit_trabalhador_autonomo | BOOLEAN | Default FALSE |
+| sit_mae_matriculada | BOOLEAN | Default FALSE |
+| sit_vulnerabilidade | BOOLEAN | Default FALSE |
+| sit_declaracao_mae_adolescente | BOOLEAN | Default FALSE |
 | renda_per_capita | DECIMAL(10,2) | Obrigatório |
-
-**Tabela `criancas`**
-
-| Campo | Tipo | Observações |
-|-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
-| nome | VARCHAR(150) | Obrigatório |
-| data_nascimento | DATE | Obrigatório |
-| cpf | CHAR(11) | Obrigatório |
-| nome_pai | VARCHAR(150) | |
-| nome_mae | VARCHAR(150) | |
-| certidao_sem_pai_mae | BOOLEAN | Default FALSE |
-| irmao_matriculado | BOOLEAN | Default FALSE |
-| vara_familia | BOOLEAN | Default FALSE |
-| conselho_tutelar | BOOLEAN | Default FALSE |
-| cras | BOOLEAN | Default FALSE |
-| creas | BOOLEAN | Default FALSE |
-| casa_acolhimento | BOOLEAN | Default FALSE |
-| nis | VARCHAR(20) | |
-| cartao_sus | VARCHAR(20) | |
-| laudo_deficiencia | BOOLEAN | Default FALSE |
-| laudo_intolerancia | BOOLEAN | Default FALSE |
-| laudo_neurodivergencia | BOOLEAN | Default FALSE |
-
-**Tabela `inscricoes`**
-
-| Campo | Tipo | Observações |
-|-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
-| ano_referencia | INTEGER | Obrigatório (ex.: 2027) |
-| numero | INTEGER | Sequencial por ano, gerado automaticamente |
-| data_registro | DATETIME | Data/hora da criação |
-| status | VARCHAR(20) | 'ativa' ou 'inativada' (default 'ativa') |
-| id_responsavel | INTEGER FK | Referência a responsaveis.id |
-| id_crianca | INTEGER FK | Referência a criancas.id |
+| cri_nome | VARCHAR(150) | Obrigatório |
+| cri_data_nascimento | DATE | Obrigatório |
+| cri_cpf | CHAR(11) | Obrigatório |
+| cri_nome_pai | VARCHAR(150) | |
+| cri_nome_mae | VARCHAR(150) | |
+| doc_certidao_sem_pai_mae | BOOLEAN | Default FALSE |
+| doc_irmao_matriculado | BOOLEAN | Default FALSE |
+| enc_vara_familia | BOOLEAN | Default FALSE |
+| enc_conselho_tutelar | BOOLEAN | Default FALSE |
+| enc_cras | BOOLEAN | Default FALSE |
+| enc_creas | BOOLEAN | Default FALSE |
+| enc_casa_acolhimento | BOOLEAN | Default FALSE |
+| saude_nis | VARCHAR(20) | |
+| saude_cartao_sus | VARCHAR(20) | |
+| saude_laudo_deficiencia | BOOLEAN | Default FALSE |
+| saude_laudo_intolerancia | BOOLEAN | Default FALSE |
+| saude_laudo_neurodivergencia | BOOLEAN | Default FALSE |
 | id_unidade | INTEGER FK | Referência a unidades.id |
 | id_turma | INTEGER FK | Referência a turmas.id |
 | turno | VARCHAR(10) | 'manhã', 'tarde', 'integral' (obrigatório) |
-| justificativa_status | TEXT | Usado na inativação/reativação |
 
 **Tabela `historico`**
 
 | Campo | Tipo | Observações |
 |-------|------|-------------|
-| id | INTEGER PK | Auto incremento |
-| data_hora | DATETIME | |
+| id | SERIAL PK | Auto incremento |
+| data_hora | TIMESTAMP | |
 | entidade | VARCHAR(30) | 'inscricao', 'unidade', 'turma' |
 | registro_id | INTEGER | ID do registro alterado |
 | campo | VARCHAR(50) | |
 | valor_anterior | TEXT | |
 | valor_novo | TEXT | |
 | operador | VARCHAR(20) | 'operador' |
+
+**Tabela `usuarios`**
+
+| Campo | Tipo | Observações |
+|-------|------|-------------|
+| id | SERIAL PK | Auto incremento |
+| username | VARCHAR(50) | 'operador' ou 'suporte' |
+| senha_hash | VARCHAR(128) | Hash bcrypt |
+| role | VARCHAR(20) | 'operador' ou 'suporte' |
 
 **Tabela `configuracoes`**
 
@@ -586,3 +578,4 @@ A seguir, a descrição das tabelas principais (os tipos de dados são sugestõe
 | Versão | Data | Descrição |
 |--------|------|-----------|
 | 1.0 | Set/2026 | Versão inicial do SRS, derivada do PRD v5.1 e respostas do questionário interativo. |
+| 1.1 | Set/2026 | Revisão para desnormalização: eliminação das tabelas `responsaveis` e `criancas`; campos incorporados à tabela `inscricoes`. Ajuste dos requisitos funcionais e modelo de dados. |
