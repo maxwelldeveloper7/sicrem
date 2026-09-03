@@ -1,11 +1,3 @@
-**Resposta registrada.** Usaremos `RESTRICT` (ou `NO ACTION`) para todas as chaves estrangeiras.
-
-Para a geração do número da inscrição, adotarei a **Opção B (lógica na aplicação com transação e lock)**, por ser simples e garantir sequencial por ano. Isso será detalhado nas notas de implementação.
-
-Agora, consolidarei o **Modelo Entidade-Relacionamento (MER) detalhado** com base em todas as definições anteriores.
-
----
-
 # Modelo Entidade-Relacionamento Detalhado
 
 **Sistema de Inscrição em Creches — Censo Anual de Demanda**
