@@ -8,8 +8,8 @@
 </head>
 <body>
   <div class="header">
-    <h1>VagasCreche — Simulador de Pontuação e Cálculo</h1>
-    <p class="desc">Ferramenta para somar pontos do edital, calcular renda per capita e determinar corte etário (referência 31/03/2027).</p>
+    <h1>Simulador de Pontuação e Cálculo</h1>
+    <button class="btn btn-gray" id="clearData">Apagar dados</button>
   </div>
 
   <div class="container">
@@ -44,7 +44,7 @@
       </div>
       <div class="form-row">
         <label>Salário-mínimo (R$):</label>
-        <input id="salaryMin" type="number" min="0" step="0.01" value="1621">
+        <input id="salaryMin" type="number" min="0" step="0.01" value="1621" disabled>
       </div>
       <div class="form-actions">
         <button class="btn" id="calcPerCapita">Calcular</button>

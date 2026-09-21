@@ -1,84 +1,173 @@
 :root {
-  --bg:#f6f8fa; --card:#fff; --accent:#0b5ed7;
-  --muted:#6b7280; --success:#198754;
+  --bg: #f6f8fa;
+  --card: #fff;
+  --accent: #0b5ed7;
+  --muted: #6b7280;
+  --success: #198754;
 }
 
 body {
-  margin:0;
-  font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
-  background:var(--bg);
-  color:#111827;
-  padding:28px;
+  margin: 0;
+  font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: #111827;
+  padding: 14px;
 }
 
-.header { max-width:1100px; margin:0 auto 20px; }
-h1 { margin:0; color:var(--accent); }
-.desc { color:var(--muted); margin-top:6px; }
+.header {
+  display: flex;
+  justify-content: space-around;
+  max-width: 1100px;
+  margin: 0 auto 20px;
+}
+
+h1 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 24px;
+}
+
 
 .container {
-  max-width:1100px;
-  margin:0 auto;
-  display:grid;
-  gap:20px;
-}
-@media(min-width:980px) {
-  .container { grid-template-columns: 1fr 1fr 1fr; }
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "criterios criterios" "income age";
+  gap: 10px;
 }
 
 .card {
-  background:var(--card);
-  border-radius:12px;
-  padding:18px;
-  box-shadow:0 6px 18px rgba(15,23,42,0.06);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
 }
 
-h2 { margin:0 0 12px 0; font-size:18px; color:var(--accent); }
+h2 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+#section-criteria {
+  grid-area: criterios;
+}
+
+#section-income {
+  grid-area: income;
+}
+
 
 .criteria-list {
-  display:flex; flex-direction:column; gap:10px;
-  max-height:62vh; overflow:auto;
-}
-.crit {
-  display:flex; align-items:center; gap:12px;
-  padding:8px; border-radius:8px;
-}
-.crit input[type=checkbox]{ width:18px; height:18px; }
-.crit label { flex:1; font-size:14px; }
-.points {
-  font-weight:700; background:#eef6ff; color:var(--accent);
-  padding:6px 8px; border-radius:8px; font-size:13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 62vh;
+  overflow: auto;
 }
 
-.total { margin-top:16px; display:flex; justify-content:space-between; }
-.big { font-size:28px; font-weight:800; color:#0f172a; }
-.muted { color:var(--muted); font-size:13px; }
+.crit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.crit input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+}
+
+.crit label {
+  flex: 1;
+  font-size: 14px;
+}
+
+.points {
+  font-weight: 700;
+  background: #eef6ff;
+  color: var(--accent);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.total {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.big {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
 
 .form-row {
-  display:flex; gap:8px; margin-bottom:10px; align-items:center;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  align-items: center;
 }
+
 .form-row input[type=number],
 .form-row input[type=date] {
-  padding:8px 10px; border-radius:8px;
-  border:1px solid #e6e9ee; width:100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e9ee;
+  width: 50%;
 }
 
-.form-actions { display:flex; gap:8px; margin-top:6px; }
-.btn {
-  background:var(--accent); color:white; border:none;
-  padding:8px 12px; border-radius:8px; cursor:pointer;
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
 }
-.btn-gray { background:#6c757d; }
+
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-gray {
+  background: #6c757d;
+}
 
 .result {
-  background:#f8fafc;
-  border:1px dashed #dfe7f6;
-  padding:10px; border-radius:8px;
-  margin-top:8px; display:none;
+  background: #f8fafc;
+  border: 1px dashed #dfe7f6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 8px;
+  display: none;
 }
+
 .small-pill {
-  font-size:13px; padding:6px 8px;
-  border-radius:999px; background:#f1f5f9;
-  color:#0b5ed7;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #0b5ed7;
 }
-.status { margin-top:6px; }
-.note { font-size:13px; color:var(--muted); margin-top:8px; }
+
+.status {
+  margin-top: 6px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}

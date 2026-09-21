@@ -45,6 +45,8 @@ document.getElementById('calcPerCapita').addEventListener('click', () => {
   document.getElementById('percapValue').innerText = percap.toFixed(2).replace('.', ',');
   document.getElementById('halfSalary').innerText = 'R$ ' + half.toFixed(2).replace('.', ',');
   const statusEl = document.getElementById('percapStatus');
+  document.getElementById('c7').checked = percap <= half;
+  updateTotal();
   statusEl.innerHTML =
     percap <= half
       ? '<strong style="color:var(--success)">Dentro do corte: recebe 8 pontos</strong>'
@@ -56,6 +58,8 @@ document.getElementById('clearPerCapita').addEventListener('click', () => {
   document.getElementById('familyMembers').value = 1;
   document.getElementById('salaryMin').value = 1621;
   document.getElementById('percapResult').style.display = 'none';
+  document.getElementById('c7').checked = false;
+  updateTotal();
 });
 
 // Corte etário
@@ -96,6 +100,19 @@ document.getElementById('calcAge').addEventListener('click', () => {
 document.getElementById('clearAge').addEventListener('click', () => {
   document.getElementById('dob').value = '';
   document.getElementById('ageResult').style.display = 'none';
+});
+
+document.getElementById('clearData').addEventListener('click', () => {
+  for (let index = 1; index <= 10; index++) {
+    document.getElementById(`c${index}`).checked = false;
+  }
+  document.getElementById('familyIncome').value = 0;
+  document.getElementById('familyMembers').value = 1;
+  document.getElementById('salaryMin').value = 1621;
+  document.getElementById('percapResult').style.display = 'none';
+  document.getElementById('dob').value = '';
+  document.getElementById('ageResult').style.display = 'none';
+  updateTotal();
 });
 
 // inicializa total
